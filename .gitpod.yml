@@ -1,0 +1,5 @@
+image:
+  file: .gitpod.Dockerfile
+vscode:
+  extensions:
+    - asabil.meson@1.2.0:sYg01j3Mm+6RJtaIRwyR5A==
