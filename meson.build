@@ -5,7 +5,8 @@ project('libnet', 'c',
 subdir('include/net')
 
 net_inc = include_directories('include')
-net_src = files('lib/net.c')
+net_src = files('lib/net.c',
+                'lib/setup.c')
 
-net_lib = library('net', net_src)
+net_lib = library('net', net_src, include_directories: [net_inc])
 net_dep = declare_dependency(include_directories: [net_inc], link_with: [net_lib])
