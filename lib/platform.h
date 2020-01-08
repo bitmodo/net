@@ -10,7 +10,7 @@ extern "C" {
 #elif defined(__APPLE__)
 #error "Apple is not supported yet"
 #elif defined(__linux__)
-
+#include "platform/linux/linux.h"
 #else
 #warning "Not compiling with any platform code, because no supported platform is being compiled for"
 #endif

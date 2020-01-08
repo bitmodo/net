@@ -1,59 +1,60 @@
 #include <stdlib.h>
 #include "net/net.h"
 
-void NetSetAddress(NetImpl impl, char const * address) {
-    if (impl && impl->net) {
-        impl->setAddress(impl->net, address);
+int NetSetup() {
+    if (net_global_socket) {
+        free(net_global_socket);
+        net_global_socket = NULL;
     }
+
+    net_global_socket = NetSetupSocket();
+    return net_global_socket ? 0 : -1;
 }
 
-void NetSetPort(NetImpl impl, unsigned port) {
-    if (impl && impl->net) {
-        impl->setPort(impl->net, port);
-    }
+void NetSetAddress(char const * address) {
+    NetSetAddressSocket(net_global_socket, address);
 }
 
-void NetOpen(NetImpl impl) {
-    if (impl && impl->net) {
-        impl->open(impl->net);
-    }
+void NetSetPort(unsigned port) {
+    NetSetPortSocket(net_global_socket, port);
 }
 
-bool NetListen(NetImpl impl) {
-    if (impl && impl->net) {
-        return impl->listen(impl->net);
-    } else {
-        return false;
-    }
+char const * NetGetAddress() {
+    return NetGetAddressSocket(net_global_socket);
 }
 
-struct net_req_t const * NetGetRequest(NetImpl impl) {
-    if (impl && impl->net) {
-        return impl->getRequest(impl->net);
-    } else {
-        return NULL;
-    }
+unsigned NetGetPort() {
+    return NetGetPortSocket(net_global_socket);
 }
 
-void NetSetResponse(NetImpl impl, struct net_res_t * const res) {
-    if (impl && impl->net) {
-        impl->setResponse(impl->net, res);
-    }
+int NetOpen() {
+    return NetOpenSocket(net_global_socket);
 }
 
-void NetClose(NetImpl impl) {
-    if (impl && impl->net) {
-        impl->close(impl->net);
-    }
+bool NetListen() {
+    return NetListenSocket(net_global_socket);
 }
 
-void NetDispose(NetImpl impl) {
-    if (impl) {
-        if (impl->net) {
-            free(impl->net);
-        }
+struct net_req_t const * NetGetRequest() {
+    return NetGetRequestSocket(net_global_socket);
+}
 
-        free(impl);
-        impl = NULL;
-    }
+struct net_res_t * NetGetResponse() {
+    return NetGetResponseSocket(net_global_socket);
+}
+
+void NetFinalizeResponse() {
+    NetFinalizeResponseSocket(net_global_socket);
+}
+
+void NetClose() {
+    NetCloseSocket(net_global_socket);
+}
+
+void NetDispose() {
+    NetDisposeSocket(net_global_socket);
+}
+
+void NetDisposeRequest(struct net_req_t * req) {
+    NetDisposeRequestSocket(net_global_socket, req);
 }

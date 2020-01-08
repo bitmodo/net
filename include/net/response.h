@@ -6,10 +6,11 @@ extern "C" {
 #endif
 
 struct net_res_t {
-    char const* body;
+    char const * body;
 };
+typedef struct net_res_t * NetResponse;
 
-void NetResponseSetBody(net_res_t * const, char const*);
+void NetResponseSetBody(NetResponse, char const *);
 
 #ifdef __cplusplus
 }
