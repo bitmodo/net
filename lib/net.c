@@ -1,60 +1,66 @@
-#include <stdlib.h>
 #include "net/net.h"
+#include "net/error.h"
 
-int NetSetup() {
-    if (net_global_socket) {
-        free(net_global_socket);
-        net_global_socket = NULL;
+#include <stdlib.h>
+
+NetHandler * g_handler;
+
+void net_setup() {
+    net_setHandler(net_setupPlatform());
+}
+
+NetHandler * net_getHandler() {
+    return g_handler;
+}
+
+void net_setHandler(NetHandler * handler) {
+    g_handler = handler;
+}
+
+void net_cleanup() {
+    NetHandler * handler = net_getHandler();
+
+    if (handler) {
+        if (handler->cleanup) {
+            handler->cleanup();
+        }
+
+        free(handler);
+    }
+}
+
+int net_connect(Socket * sock) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || (handler && !(handler->connect))) {
+        return ENULL_POINTER;
     }
 
-    net_global_socket = NetSetupSocket();
-    return net_global_socket ? 0 : -1;
+    return handler->connect(sock);
 }
 
-void NetSetAddress(char const * address) {
-    NetSetAddressSocket(net_global_socket, address);
+int net_start(Socket * sock) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || (handler && !(handler->start))) {
+        return ENULL_POINTER;
+    }
+
+    return handler->start(sock);
 }
 
-void NetSetPort(unsigned port) {
-    NetSetPortSocket(net_global_socket, port);
+int net_loop(Socket * sock) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || (handler && !(handler->loop))) {
+        return ENULL_POINTER;
+    }
+
+    return handler->loop(sock);
 }
 
-char const * NetGetAddress() {
-    return NetGetAddressSocket(net_global_socket);
-}
+int net_close(Socket * sock) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || (handler && !(handler->close))) {
+        return ENULL_POINTER;
+    }
 
-unsigned NetGetPort() {
-    return NetGetPortSocket(net_global_socket);
-}
-
-int NetOpen() {
-    return NetOpenSocket(net_global_socket);
-}
-
-bool NetListen() {
-    return NetListenSocket(net_global_socket);
-}
-
-struct net_req_t const * NetGetRequest() {
-    return NetGetRequestSocket(net_global_socket);
-}
-
-struct net_res_t * NetGetResponse() {
-    return NetGetResponseSocket(net_global_socket);
-}
-
-void NetFinalizeResponse() {
-    NetFinalizeResponseSocket(net_global_socket);
-}
-
-void NetClose() {
-    NetCloseSocket(net_global_socket);
-}
-
-void NetDispose() {
-    NetDisposeSocket(net_global_socket);
-}
-
-void NetDisposeRequest(struct net_req_t * req) {
-    NetDisposeRequestSocket(net_global_socket, req);
+    return handler->close(sock);
 }

@@ -1,124 +1,77 @@
-#ifndef NET_NET
-#define NET_NET
+#ifndef NET_NET_H
+#define NET_NET_H
 
-#include <stdbool.h>
 #include "util.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// Naming conventions:
+//
+// Struct: TitleCase
+// Struct members: cammelCase
+// Enum: ETitleCase
+// Enum members: cammelCase or pALL_CAPS where p = one letter prefix
+// Public functions: net_cammelCase
+// Private functions: _TitleCase
+// Trivial variables: i, x, n, f, etc...
+// Local variables: cammelCase
+// Global variables: g_cammelCase
 
-/// A socket type.
-///
-/// This contains any of the necessary information to run a socket. It is
-/// implemented depending on the platform to contain any variables for
-/// that specific platform.
-struct net_data_t;
-
-// Defined in request.h
-struct net_req_handler_t;
-struct net_req_t;
-
-// Defined in response.h
-struct net_res_t;
-
-/// A net implementation.
-///
-/// This is a platform specific implementation of the necessary methods to
-/// perform networking. You create this object to automatically choose an
-/// implementation based on the current platform using the `NetSetup` function.
-struct net_socket_t {
-    struct net_data_t * data;
-
-    struct net_req_handler_t * req_handler;
-
-    void (* setAddress)(struct net_data_t * const, char const *);
-
-    void (* setPort)(struct net_data_t * const, unsigned);
-
-    char const * (* getAddress)(struct net_data_t * const);
-
-    unsigned (* getPort)(struct net_data_t * const);
-
-    int (* open)(struct net_data_t * const);
-
-    bool (* listen)(struct net_data_t * const);
-
-    struct net_req_t const * (* getRequest)(struct net_data_t * const);
-
-    struct net_res_t * (* getResponse)(struct net_data_t * const);
-
-    void (* finalizeResponse)(struct net_data_t * const);
-
-    void (* close)(struct net_data_t * const);
-
-    void (* disposeData)(struct net_data_t * const);
-
-    void (* disposeRequest)(struct net_req_t * const);
+/** The side of a connection */
+enum ENetSide {
+    CLIENT, /* The client side of a connection */
+    SERVER /* The server side of a connection */
 };
 
-typedef struct net_socket_t * NetSocket;
+/** The type of connection to make */
+enum ENetType {
+    TCP, /* A Transmission Control Protocol socket */
+    UDP /* A User Datagram Protocol socket */
+};
 
-static NetSocket net_global_socket;
+/** Implementation specific data to associate with a socket */
+typedef struct SocketData SocketData;
 
-NET_EXPORT int NetSetup();
+/** A generic socket */
+typedef struct Socket {
+    int side; /* The side of the socket. Corresponds to ENetSide */
+    int type; /* The type of the socket. Corresponds to ENetType */
+    SocketData * data; /* Implementation specific data associated with this socket */
+} Socket;
 
-/// Setup a networking implementation.
-///
-/// This will check the current platform and create a `net_impl_t` struct that
-/// implements the necessary methods based on the proper platform.
-NET_EXPORT NetSocket NetSetupSocket();
+/** A collection of functions to allow implementations dynamically change how different tasks are handled */
+typedef struct NetHandler {
+    SocketData * (* initialize)(int side, int type); /* Initialize socket data for when creating a socket */
+    int (* connect)(Socket *); /* Client. Connect to the specified server and prepare the environment to use the connection */
+    int (* start)(Socket *); /* Server. Initialize a socket and prepare it for incoming connections */
+    int (* loop)(Socket *); /* Accept a connection and prepare the environment to use the connection */
+    int (* close)(Socket *); /* Close and dispose of a socket. This should free the socket and any related data */
+    void (* cleanup)(); /* Clean up the environment and free any related memory */
+} NetHandler;
 
-NET_EXPORT void NetSetAddress(char const *);
+/**  */
+NET_EXPORT void net_setup();
 
-NET_EXPORT void NetSetAddressSocket(NetSocket, char const *);
+/** An implementation specific setup function to provide a handler for said implementation */
+NET_EXPORT NetHandler * net_setupPlatform();
 
-NET_EXPORT void NetSetPort(unsigned);
+/**  */
+NET_EXPORT NetHandler * net_getHandler();
 
-NET_EXPORT void NetSetPortSocket(NetSocket, unsigned);
+/**  */
+NET_EXPORT void net_setHandler(NetHandler *);
 
-NET_EXPORT char const * NetGetAddress();
+/**  */
+NET_EXPORT void net_cleanup();
 
-NET_EXPORT char const * NetGetAddressSocket(NetSocket);
+/**  */
+NET_EXPORT int net_connect(Socket *);
 
-NET_EXPORT unsigned NetGetPort();
+/**  */
+NET_EXPORT int net_start(Socket *);
 
-NET_EXPORT unsigned NetGetPortSocket(NetSocket);
+/**  */
+NET_EXPORT int net_loop(Socket *);
 
-NET_EXPORT int NetOpen();
-
-NET_EXPORT int NetOpenSocket(NetSocket);
-
-NET_EXPORT bool NetListen();
-
-NET_EXPORT bool NetListenSocket(NetSocket);
-
-NET_EXPORT struct net_req_t const * NetGetRequest();
-
-NET_EXPORT struct net_req_t const * NetGetRequestSocket(NetSocket);
-
-NET_EXPORT struct net_res_t * NetGetResponse();
-
-NET_EXPORT struct net_res_t * NetGetResponseSocket(NetSocket);
-
-NET_EXPORT void NetFinalizeResponse();
-
-NET_EXPORT void NetFinalizeResponseSocket(NetSocket);
-
-NET_EXPORT void NetClose();
-
-NET_EXPORT void NetCloseSocket(NetSocket);
-
-NET_EXPORT void NetDispose();
-
-NET_EXPORT void NetDisposeSocket(NetSocket);
-
-NET_EXPORT void NetDisposeRequest(struct net_req_t *);
-
-NET_EXPORT void NetDisposeRequestSocket(NetSocket, struct net_req_t *);
-
-#ifdef __cplusplus
-}
-#endif
+/**  */
+NET_EXPORT int net_close(Socket *);
 
 #endif
