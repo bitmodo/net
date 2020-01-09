@@ -4,18 +4,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <threads.h>
+#include <pthread.h>
+#include <unistd.h>
 
 #define HOST "127.0.0.1"
 #define PORT 8080
 
-int server(void * data) {
+void * server(void * data) {
     fprintf(stdout, "Starting server\n");
 
     Socket * sock = net_socket(SERVER, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create server socket\n");
-        return EXIT_FAILURE;
+        // return EXIT_FAILURE;
+        return NULL;
     }
 
     net_setAddress(sock, HOST);
@@ -49,16 +51,18 @@ int server(void * data) {
     }
 
     fprintf(stdout, "Finishing server\n");
-    return EXIT_SUCCESS;
+    // return EXIT_SUCCESS;
+    return NULL;
 }
 
-int client(void * data) {
+void * client(void * data) {
     fprintf(stdout, "Starting client\n");
 
     Socket * sock = net_socket(CLIENT, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create client socket\n");
-        return EXIT_FAILURE;
+        // return EXIT_FAILURE;
+        return NULL;
     }
 
     net_setAddress(sock, HOST);
@@ -87,21 +91,22 @@ int client(void * data) {
 
     net_close(sock);
     fprintf(stdout, "Finishing client\n");
-    return EXIT_SUCCESS;
+    // return EXIT_SUCCESS;
+    return NULL;
 }
 
 int main(int argc, char ** argv) {
     net_setup();
 
-    thrd_t tClient, tServer;
+    pthread_t tClient, tServer;
     // Start the server then the client
-    thrd_create(&tServer, &server, NULL);
-    thrd_sleep(&(struct timespec){.tv_sec=1}, NULL);
-    thrd_create(&tClient, &client, NULL);
+    pthread_create(&tServer, NULL, &server, NULL);
+    sleep(1);
+    pthread_create(&tClient, NULL, &client, NULL);
 
     // Join the client when it finishes then the server
-    thrd_join(tClient, NULL);
-    thrd_join(tServer, NULL);
+    pthread_join(tClient, NULL);
+    pthread_join(tServer, NULL);
 
     net_cleanup();
 

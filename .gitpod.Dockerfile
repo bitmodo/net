@@ -10,6 +10,7 @@ RUN sudo apt-get update \
     python3-setuptools \
     python3-wheel \
     ninja-build \
+    valgrind \
     && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/* /tmp/*
 RUN sudo pip3 install meson
 
