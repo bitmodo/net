@@ -34,6 +34,8 @@ typedef struct SocketData SocketData;
 typedef struct Socket {
     int side; /* The side of the socket. Corresponds to ENetSide */
     int type; /* The type of the socket. Corresponds to ENetType */
+    const char * address; /*  */
+    unsigned port; /*  */
     SocketData * data; /* Implementation specific data associated with this socket */
 } Socket;
 
@@ -43,6 +45,9 @@ typedef struct NetHandler {
     int (* connect)(Socket *); /* Client. Connect to the specified server and prepare the environment to use the connection */
     int (* start)(Socket *); /* Server. Initialize a socket and prepare it for incoming connections */
     int (* loop)(Socket *); /* Accept a connection and prepare the environment to use the connection */
+    int (* receive)(Socket *, void *, int);
+    int (* send)(Socket *, const void *, int);
+    int (* closeConnection)(Socket *);
     int (* close)(Socket *); /* Close and dispose of a socket. This should free the socket and any related data */
     void (* cleanup)(); /* Clean up the environment and free any related memory */
 } NetHandler;
@@ -59,8 +64,22 @@ NET_EXPORT NetHandler * net_getHandler();
 /**  */
 NET_EXPORT void net_setHandler(NetHandler *);
 
+NET_EXPORT Socket * net_socket(int side, int type);
+
 /**  */
 NET_EXPORT void net_cleanup();
+
+// Functions to manipulate the ip and port of the socket
+
+NET_EXPORT void net_setAddress(Socket *, const char *);
+
+NET_EXPORT const char * net_getAddress(Socket *);
+
+NET_EXPORT void net_setPort(Socket *, unsigned);
+
+NET_EXPORT unsigned net_getPort(Socket *);
+
+// Functions relating to the manipulation of a socket
 
 /**  */
 NET_EXPORT int net_connect(Socket *);
@@ -70,6 +89,15 @@ NET_EXPORT int net_start(Socket *);
 
 /**  */
 NET_EXPORT int net_loop(Socket *);
+
+/**  */
+NET_EXPORT int net_receive(Socket *, void *, int);
+
+/**  */
+NET_EXPORT int net_send(Socket *, const void *, int);
+
+/**  */
+NET_EXPORT int net_closeConnection(Socket *);
 
 /**  */
 NET_EXPORT int net_close(Socket *);

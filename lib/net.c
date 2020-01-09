@@ -17,6 +17,19 @@ void net_setHandler(NetHandler * handler) {
     g_handler = handler;
 }
 
+Socket * net_socket(int side, int type) {
+    SocketData * data = NULL;
+    NetHandler * handler = net_getHandler();
+    if (handler && handler->initialize) {
+        data = handler->initialize(side, type);
+    }
+
+    Socket * result = malloc(sizeof(Socket));
+    *result = (Socket) {side, type, NULL, 0, data};
+
+    return result;
+}
+
 void net_cleanup() {
     NetHandler * handler = net_getHandler();
 
@@ -26,41 +39,68 @@ void net_cleanup() {
         }
 
         free(handler);
+        net_setHandler(NULL);
     }
 }
 
-int net_connect(Socket * sock) {
-    NetHandler * handler = net_getHandler();
-    if (!handler || (handler && !(handler->connect))) {
-        return ENULL_POINTER;
+void net_setAddress(Socket * sock, const char * addr) {
+    if (sock) {
+        sock->address = addr;
     }
-
-    return handler->connect(sock);
 }
 
-int net_start(Socket * sock) {
-    NetHandler * handler = net_getHandler();
-    if (!handler || (handler && !(handler->start))) {
-        return ENULL_POINTER;
+const char * net_getAddress(Socket * sock) {
+    if (sock) {
+        return sock->address;
+    } else {
+        return NULL;
     }
-
-    return handler->start(sock);
 }
 
-int net_loop(Socket * sock) {
-    NetHandler * handler = net_getHandler();
-    if (!handler || (handler && !(handler->loop))) {
-        return ENULL_POINTER;
+void net_setPort(Socket * sock, unsigned port) {
+    if (sock) {
+        sock->port = port;
     }
-
-    return handler->loop(sock);
 }
 
-int net_close(Socket * sock) {
+unsigned net_getPort(Socket * sock) {
+    if (sock) {
+        return sock->port;
+    } else {
+        return 0;
+    }
+}
+
+#define NET_FUNCTION(name)                   \
+int net_ ## name(Socket * sock) {            \
+    NetHandler * handler = net_getHandler(); \
+    if (!handler || !(handler->name)) {      \
+        return ENULL_POINTER;                \
+    }                                        \
+                                             \
+    return handler->name(sock);              \
+}
+
+NET_FUNCTION(connect)
+NET_FUNCTION(start)
+NET_FUNCTION(loop)
+NET_FUNCTION(closeConnection)
+NET_FUNCTION(close)
+
+int net_receive(Socket * sock, void * buf, int count) {
     NetHandler * handler = net_getHandler();
-    if (!handler || (handler && !(handler->close))) {
+    if (!handler || !(handler->receive)) {
         return ENULL_POINTER;
     }
 
-    return handler->close(sock);
+    return handler->receive(sock, buf, count);
+}
+
+int net_send(Socket * sock, const void * buf, int count) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || !(handler->send)) {
+        return ENULL_POINTER;
+    }
+
+    return handler->send(sock, buf, count);
 }
