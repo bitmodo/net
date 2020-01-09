@@ -125,9 +125,8 @@ int sendLinux(Socket * sock, const void * buf, int count) {
 }
 
 int closeConnectionLinux(Socket * sock) {
-    if (!sock || !(sock->data) || sock->data->conn == -1) {
-        return ENULL_POINTER;
-    }
+    if (!sock || !(sock->data) || sock->data->conn == -1) return ENULL_POINTER;
+    // if (sock == NULL || sock->data == NULL || sock->data->conn == -1) return ENULL_POINTER;
 
     close(sock->data->conn);
     sock->data->conn = -1;
@@ -135,17 +134,18 @@ int closeConnectionLinux(Socket * sock) {
     return ESUCCESS;
 }
 
-int closeLinux(Socket * sock) {
-    if (!sock || !(sock->data)) {
+int closeLinux(Socket ** sock) {
+    if (!sock || !((*sock)->data)) {
         return ENULL_POINTER;
     }
 
-    if (sock->data->fd != -1) {
-        close(sock->data->fd);
+    if ((*sock)->data->fd != -1) {
+        close((*sock)->data->fd);
     }
 
-    free(sock->data);
-    free(sock);
+    free((*sock)->data);
+    free(*sock);
+    *sock = NULL;
     return ESUCCESS;
 }
 

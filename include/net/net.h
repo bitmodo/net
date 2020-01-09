@@ -48,7 +48,7 @@ typedef struct NetHandler {
     int (* receive)(Socket *, void *, int);
     int (* send)(Socket *, const void *, int);
     int (* closeConnection)(Socket *);
-    int (* close)(Socket *); /* Close and dispose of a socket. This should free the socket and any related data */
+    int (* close)(Socket **); /* Close and dispose of a socket. This should free the socket and any related data */
     void (* cleanup)(); /* Clean up the environment and free any related memory */
 } NetHandler;
 
@@ -100,6 +100,6 @@ NET_EXPORT int net_send(Socket *, const void *, int);
 NET_EXPORT int net_closeConnection(Socket *);
 
 /**  */
-NET_EXPORT int net_close(Socket *);
+NET_EXPORT int net_close(Socket **);
 
 #endif

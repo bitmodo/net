@@ -85,7 +85,16 @@ NET_FUNCTION(connect)
 NET_FUNCTION(start)
 NET_FUNCTION(loop)
 NET_FUNCTION(closeConnection)
-NET_FUNCTION(close)
+// NET_FUNCTION(close)
+
+int net_close(Socket ** sock) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || !(handler->close)) {
+        return ENULL_POINTER;
+    }
+
+    return handler->close(sock);
+}
 
 int net_receive(Socket * sock, void * buf, int count) {
     NetHandler * handler = net_getHandler();

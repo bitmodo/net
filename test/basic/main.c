@@ -16,7 +16,6 @@ void * server(void * data) {
     Socket * sock = net_socket(SERVER, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create server socket\n");
-        // return EXIT_FAILURE;
         return NULL;
     }
 
@@ -38,10 +37,11 @@ void * server(void * data) {
 
                 if (strcmp(buf, "close") == 0) {
                     fprintf(stdout, "Server: Closing socket\n");
-                    net_close(sock);
+                    net_close(&sock);
                     break;
                 }
 
+                fprintf(stdout, "Server: Sending pong\n");
                 net_send(sock, buf, readSize);
             }
         }
@@ -51,7 +51,6 @@ void * server(void * data) {
     }
 
     fprintf(stdout, "Finishing server\n");
-    // return EXIT_SUCCESS;
     return NULL;
 }
 
@@ -61,7 +60,6 @@ void * client(void * data) {
     Socket * sock = net_socket(CLIENT, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create client socket\n");
-        // return EXIT_FAILURE;
         return NULL;
     }
 
@@ -75,7 +73,6 @@ void * client(void * data) {
     net_send(sock, message, (int) strlen(message));
 
     char buf[1024] = {0};
-    fprintf(stdout, "Client: Receiving\n");
     int receiveSize = net_receive(sock, buf, 1024);
     if(receiveSize == -1) {
         fprintf(stderr, "Client: Error receiving\n");
@@ -89,9 +86,8 @@ void * client(void * data) {
     fprintf(stdout, "Client: Sending close command\n");
     net_send(sock, closeMessage, (int) strlen(message));
 
-    net_close(sock);
+    net_close(&sock);
     fprintf(stdout, "Finishing client\n");
-    // return EXIT_SUCCESS;
     return NULL;
 }
 
