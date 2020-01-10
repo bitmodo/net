@@ -52,7 +52,7 @@ typedef struct Socket {
 
 /** A collection of functions to allow implementations dynamically change how different tasks are handled */
 typedef struct NetHandler {
-    SocketData * (* initialize)(int side, int type, int addressType); /* Initialize socket data for when creating a socket */
+    SocketData * (* initialize)(int side, int type); /* Initialize socket data for when creating a socket */
     int (* connect)(Socket *); /* Client. Connect to the specified server and prepare the environment to use the connection */
     int (* start)(Socket *); /* Server. Initialize a socket and prepare it for incoming connections */
     int (* loop)(Socket *); /* Server. Accept a connection and prepare the environment to use the connection */
@@ -78,7 +78,7 @@ NET_EXPORT NetHandler * net_getHandler();
 NET_EXPORT void net_setHandler(NetHandler *);
 
 /** Create a socket using the specified side and type. Side refers to ENetSide and type refers to ENetType */
-NET_EXPORT Socket * net_socket(int side, int type, int addressType);
+NET_EXPORT Socket * net_socket(int side, int type);
 
 /** Cleanup the environment of networking related things. This should be the last call when using networking.
     After this is called, it would need to be setup again before networking functions can be used. */
@@ -91,6 +91,10 @@ NET_EXPORT void net_setAddress(Socket *, const char *);
 
 /** Get a socket's address */
 NET_EXPORT const char * net_getAddress(Socket *);
+
+NET_EXPORT void net_setAddressType(Socket *, int);
+
+NET_EXPORT int net_getAddressType(Socket *);
 
 /** Set a socket's port */
 NET_EXPORT void net_setPort(Socket *, unsigned);

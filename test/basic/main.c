@@ -13,7 +13,7 @@
 void * server(void * data) {
     fprintf(stdout, "Starting server\n");
 
-    Socket * sock = net_socket(SERVER, TCP, IPv4);
+    Socket * sock = net_socket(SERVER, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create server socket\n");
         return NULL;
@@ -69,7 +69,7 @@ void * server(void * data) {
 void * client(void * data) {
     fprintf(stdout, "Starting client\n");
 
-    Socket * sock = net_socket(CLIENT, TCP, IPv4);
+    Socket * sock = net_socket(CLIENT, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create client socket\n");
         return NULL;

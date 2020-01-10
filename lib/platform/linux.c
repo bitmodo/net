@@ -33,7 +33,7 @@ int addressTypeToFamilyType(int type) {
     }
 }
 
-SocketData * initializeLinux(int side, int type, int addressType) {
+SocketData * initializeLinux(int side, int type) {
     SocketData * data = malloc(sizeof(SocketData));
     *data = (SocketData) {-1, -1};
 
