@@ -10,6 +10,7 @@ enum EErrors {
     ESUCCESS = 0, /* Not actually an error. Represents success */
 
     EUNKNOWN, /* An unknown error */
+    EUNSUPPORTED, /* Something was requested that is not supported */
     ENULL_POINTER, /* A pointer was null */
 
     EERRORS_END /* Utility for the end of this enum */

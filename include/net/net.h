@@ -31,6 +31,12 @@ enum ENetType {
     UDP /* A User Datagram Protocol socket */
 };
 
+/** The type of the specified address address */
+enum EAddressType {
+    IPv4, /* An IPv4 address */
+    IPv6 /* An IPv6 address */
+};
+
 /** Implementation specific data to associate with a socket */
 typedef struct SocketData SocketData;
 
@@ -39,13 +45,14 @@ typedef struct Socket {
     int side; /* The side of the socket. Corresponds to ENetSide */
     int type; /* The type of the socket. Corresponds to ENetType */
     const char * address; /* The address to connect to or listen on */
+    int addressType; /* The type of the address */
     unsigned port; /* The port to connect to or listen on */
     SocketData * data; /* Implementation specific data associated with this socket */
 } Socket;
 
 /** A collection of functions to allow implementations dynamically change how different tasks are handled */
 typedef struct NetHandler {
-    SocketData * (* initialize)(int side, int type); /* Initialize socket data for when creating a socket */
+    SocketData * (* initialize)(int side, int type, int addressType); /* Initialize socket data for when creating a socket */
     int (* connect)(Socket *); /* Client. Connect to the specified server and prepare the environment to use the connection */
     int (* start)(Socket *); /* Server. Initialize a socket and prepare it for incoming connections */
     int (* loop)(Socket *); /* Server. Accept a connection and prepare the environment to use the connection */
@@ -71,7 +78,7 @@ NET_EXPORT NetHandler * net_getHandler();
 NET_EXPORT void net_setHandler(NetHandler *);
 
 /** Create a socket using the specified side and type. Side refers to ENetSide and type refers to ENetType */
-NET_EXPORT Socket * net_socket(int side, int type);
+NET_EXPORT Socket * net_socket(int side, int type, int addressType);
 
 /** Cleanup the environment of networking related things. This should be the last call when using networking.
     After this is called, it would need to be setup again before networking functions can be used. */

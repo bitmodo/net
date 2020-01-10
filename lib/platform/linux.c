@@ -25,7 +25,15 @@ int socketTypeToNetworkType(int type) {
     }
 }
 
-SocketData * initializeLinux(int side, int type) {
+int addressTypeToFamilyType(int type) {
+    if (type == IPv6) {
+        return AF_INET6;
+    } else {
+        return AF_INET;
+    }
+}
+
+SocketData * initializeLinux(int side, int type, int addressType) {
     SocketData * data = malloc(sizeof(SocketData));
     *data = (SocketData) {-1, -1};
 
@@ -35,7 +43,7 @@ SocketData * initializeLinux(int side, int type) {
 int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET; // Allow IPv4 or IPv6
+    hints.ai_family = addressTypeToFamilyType(sock->addressType); // Allow IPv4 or IPv6
     hints.ai_socktype = socketTypeToNetworkType(sock->type);
     hints.ai_flags = sock->side == SERVER ? AI_PASSIVE : 0; // For wildcard IP address
     hints.ai_protocol = 0; // Any protocol
@@ -53,10 +61,12 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
         sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 
         if (rp->ai_family == AF_INET) {
-            struct sockaddr_in * addr = (struct sockaddr_in *) rp->ai_addr;
-            addr->sin_port = sock->port;
+            ((struct sockaddr_in *) rp->ai_addr)->sin_port = sock->port;
+        } else if (rp->ai_family == AF_INET6) {
+            ((struct sockaddr_in6 *) rp->ai_addr)->sin6_port = sock->port;
         } else {
             fprintf(stderr, "Non IPv4 addresses are not yet supported\n");
+            return EUNSUPPORTED;
         }
 
         if (sfd == -1)

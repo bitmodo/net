@@ -17,15 +17,15 @@ void net_setHandler(NetHandler * handler) {
     g_handler = handler;
 }
 
-Socket * net_socket(int side, int type) {
+Socket * net_socket(int side, int type, int addressType) {
     SocketData * data = NULL;
     NetHandler * handler = net_getHandler();
     if (handler && handler->initialize) {
-        data = handler->initialize(side, type);
+        data = handler->initialize(side, type, addressType);
     }
 
     Socket * result = malloc(sizeof(Socket));
-    *result = (Socket) {side, type, NULL, 0, data};
+    *result = (Socket) {side, type, NULL, addressType, 0, data};
 
     return result;
 }
