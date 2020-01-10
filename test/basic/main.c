@@ -26,7 +26,7 @@ void * server(void * data) {
         return NULL;
     }
 
-    fprintf(stdout, "Server: Waiting for connections\n");
+    fprintf(stdout, "Server: Waiting for connections on %s:%d\n", net_getAddress(sock), net_getPort(sock));
     int lc;
     while ((lc = net_loop(sock)) == ESUCCESS) {
         fprintf(stdout, "Server: Received a connection. Waiting for data\n");
@@ -77,7 +77,7 @@ void * client(void * data) {
 
     net_setAddress(sock, HOST);
     net_setPort(sock, PORT);
-    fprintf(stdout, "Client: Establishing connection\n");
+    fprintf(stdout, "Client: Establishing connection on %s:%d\n", net_getAddress(sock), net_getPort(sock));
     int code;
     if ((code = net_connect(sock)) != ESUCCESS) {
         fprintf(stderr, "Client: Failed to connect with code %d\n", code);
