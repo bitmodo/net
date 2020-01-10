@@ -2,6 +2,7 @@
 #include "net/error.h"
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -30,18 +31,28 @@ SocketData * initializeLinux(int side, int type) {
     return data;
 }
 
+int prepareAddress(struct sockaddr_in * addr, Socket * sock, bool any) {
+    addr->sin_family = AF_INET;
+    addr->sin_port = htons(sock->port);
+
+    if (sock->address) {
+        if (inet_pton(AF_INET, sock->address, &(addr->sin_addr)) <= 0) return EINVALID_IP;
+    } else {
+        if (any) {
+            addr->sin_addr.s_addr = INADDR_ANY;
+        } else {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int connectLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
 
     struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(sock->port);
-
-    if (sock->address) {
-        if (inet_pton(AF_INET, sock->address, &(addr.sin_addr)) <= 0) return EINVALID_IP;
-    } else {
-        return ENULL_POINTER;
-    }
+    if (prepareAddress(&addr, sock, false) == -1) return ENULL_POINTER;
 
     if (connect(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
 
@@ -52,14 +63,7 @@ int startLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
 
     struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(sock->port);
-
-    if (sock->address) {
-        if (inet_pton(AF_INET, sock->address, &(addr.sin_addr)) <= 0) return EINVALID_IP;
-    } else {
-        addr.sin_addr.s_addr = INADDR_ANY;
-    }
+    if (prepareAddress(&addr, sock, false) == -1) return ENULL_POINTER;
 
     if (bind(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
 
