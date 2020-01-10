@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define HOST "127.0.0.1"
+#define HOST "localhost"
 #define PORT 8080
 
 void * server(void * data) {
@@ -22,15 +22,19 @@ void * server(void * data) {
     net_setAddress(sock, HOST);
     net_setPort(sock, PORT);
     if (net_start(sock) != ESUCCESS) {
-        fprintf(stderr, "Failed to start server");
+        fprintf(stderr, "Failed to start server\n");
         return NULL;
     }
 
-    while (net_loop(sock) == ESUCCESS) {
+    fprintf(stdout, "Server: Waiting for connections\n");
+    int lc;
+    while ((lc = net_loop(sock)) == ESUCCESS) {
+        fprintf(stdout, "Server: Received a connection. Waiting for data\n");
+
         for (int i = 0; i < 5; i++) {
             char buf[1024] = {0};
 
-            int readSize = net_receive(sock, buf, 1024);
+            int readSize = net_receive(sock, buf, sizeof(buf)-1);
             if (readSize == -1) {
                 fprintf(stderr, "Server: Error reading from the socket\n");
             } else if (readSize == 0) {
@@ -53,6 +57,11 @@ void * server(void * data) {
         net_closeConnection(sock);
     }
 
+    if (lc != ECLOSED) {
+        fprintf(stderr, "Failed to run server\n");
+        return NULL;
+    }
+
     fprintf(stdout, "Finishing server\n");
     return NULL;
 }
@@ -69,14 +78,18 @@ void * client(void * data) {
     net_setAddress(sock, HOST);
     net_setPort(sock, PORT);
     fprintf(stdout, "Client: Establishing connection\n");
-    net_connect(sock);
+    int code;
+    if ((code = net_connect(sock)) != ESUCCESS) {
+        fprintf(stderr, "Client: Failed to connect with code %d\n", code);
+        return NULL;
+    }
 
-    char * message = "This is a test";
+    char message[] = "This is a test";
     fprintf(stdout, "Client: Sending: %s\n", message);
-    net_send(sock, message, (int) strlen(message));
+    net_send(sock, message, (int) sizeof(message));
 
     char buf[1024] = {0};
-    int receiveSize = net_receive(sock, buf, 1024);
+    int receiveSize = net_receive(sock, buf, sizeof(buf)-1);
     if(receiveSize == -1) {
         fprintf(stderr, "Client: Error receiving\n");
     } else if (receiveSize == 0) {
@@ -85,9 +98,9 @@ void * client(void * data) {
         fprintf(stdout, "Client: Received message:\n\t%s\n", buf);
     }
 
-    char * closeMessage = "close";
+    char closeMessage[] = "close";
     fprintf(stdout, "Client: Sending close command\n");
-    net_send(sock, closeMessage, (int) strlen(message));
+    net_send(sock, closeMessage, sizeof(closeMessage));
 
     net_close(&sock);
     fprintf(stdout, "Finishing client\n");

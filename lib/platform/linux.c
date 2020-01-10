@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 
 struct SocketData {
     int fd;
@@ -26,27 +28,36 @@ int socketTypeToNetworkType(int type) {
 SocketData * initializeLinux(int side, int type) {
     SocketData * data = malloc(sizeof(SocketData));
     *data = (SocketData) {-1, -1};
-    // int fd = socket(AF_INET, socketTypeToNetworkType(type), 0);
-    // if (fd == -1) return NULL;
-
-    // SocketData * data = malloc(sizeof(SocketData));
-    // *data = (SocketData) {fd, -1};
 
     return data;
 }
 
 int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET; // Allow IPv4 or IPv6
+    hints.ai_socktype = socketTypeToNetworkType(sock->type);
+    hints.ai_flags = sock->side == SERVER ? AI_PASSIVE : 0; // For wildcard IP address
+    hints.ai_protocol = 0; // Any protocol
+
     struct addrinfo * info;
-    int err = getaddrinfo(sock->address, NULL, NULL, &info);
+    int err = getaddrinfo(sock->address, NULL, &hints, &info);
     if (err != 0) {
-        fprintf(stderr, "Error: %s\n", gai_strerror(err));
-        return -1;
+        // fprintf(stderr, "Error: %s\n", gai_strerror(err));
+        return err;
     }
 
     int sfd;
     struct addrinfo * rp;
     for (rp = info; rp != NULL; rp = rp->ai_next) {
         sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+
+        if (rp->ai_family == AF_INET) {
+            struct sockaddr_in * addr = (struct sockaddr_in *) rp->ai_addr;
+            addr->sin_port = sock->port;
+        } else {
+            fprintf(stderr, "Non IPv4 addresses are not yet supported\n");
+        }
 
         if (sfd == -1)
             continue;
@@ -75,10 +86,8 @@ int connectFunction(int sfd, struct addrinfo *info) {
 int connectLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
 
-    // struct sockaddr_in addr;
-    if (prepareSocket(&connectFunction, sock) == -1) return ENULL_POINTER;
-
-    // if (connect(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
+    int code;
+    if ((code = prepareSocket(&connectFunction, sock)) == -1) return code;
 
     return ESUCCESS;
 }
@@ -96,15 +105,11 @@ int startLinux(Socket * sock) {
 
     if (prepareSocket(&startFunction, sock) == -1) return ENULL_POINTER;
 
-    // if (bind(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
-
-    // if (listen(sock->data->fd, 10)) return EUNKNOWN;
-
     return ESUCCESS;
 }
 
 int loopLinux(Socket * sock) {
-    if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
+    if (!sock || !(sock->data) || sock->data->conn != -1 || sock->data->fd == -1) return ECLOSED;
 
     int fd;
     if ((fd = accept(sock->data->fd, NULL, 0)) < 0) return EUNKNOWN;

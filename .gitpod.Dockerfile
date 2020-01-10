@@ -12,7 +12,6 @@ RUN sudo apt-get update \
     ninja-build \
     valgrind \
     ccache \
-    lldb \
     && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/* /tmp/*
 RUN sudo pip3 install meson
 RUN sudo /usr/sbin/update-ccache-symlinks

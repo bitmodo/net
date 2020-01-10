@@ -16,7 +16,8 @@ enum EErrors {
 
 enum ENetError {
     EIN_USE = EERRORS_END, /* An address is already in use */
-    EINVALID_IP
+    EINVALID_IP,
+    ECLOSED
 };
 
 #ifdef __cplusplus
