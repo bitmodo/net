@@ -1,6 +1,10 @@
 #ifndef NET_NET_H
 #define NET_NET_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "util.h"
 
 // Naming conventions:
@@ -101,5 +105,9 @@ NET_EXPORT int net_closeConnection(Socket *);
 
 /**  */
 NET_EXPORT int net_close(Socket **);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

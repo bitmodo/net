@@ -21,7 +21,10 @@ void * server(void * data) {
 
     net_setAddress(sock, HOST);
     net_setPort(sock, PORT);
-    net_start(sock);
+    if (net_start(sock) != ESUCCESS) {
+        fprintf(stderr, "Failed to start server");
+        return NULL;
+    }
 
     while (net_loop(sock) == ESUCCESS) {
         for (int i = 0; i < 5; i++) {

@@ -1,6 +1,10 @@
 #ifndef NET_ERROR_H
 #define NET_ERROR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum EErrors {
     ESUCCESS = 0, /* Not actually an error. Represents success */
 
@@ -14,5 +18,9 @@ enum ENetError {
     EIN_USE = EERRORS_END, /* An address is already in use */
     EINVALID_IP
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

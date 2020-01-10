@@ -1,11 +1,13 @@
 #include "net/net.h"
 #include "net/error.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <unistd.h>
 
 struct SocketData {
@@ -22,52 +24,81 @@ int socketTypeToNetworkType(int type) {
 }
 
 SocketData * initializeLinux(int side, int type) {
-    int fd = socket(AF_INET, socketTypeToNetworkType(type), 0);
-    if (fd == -1) return NULL;
-
     SocketData * data = malloc(sizeof(SocketData));
-    *data = (SocketData) {fd, -1};
+    *data = (SocketData) {-1, -1};
+    // int fd = socket(AF_INET, socketTypeToNetworkType(type), 0);
+    // if (fd == -1) return NULL;
+
+    // SocketData * data = malloc(sizeof(SocketData));
+    // *data = (SocketData) {fd, -1};
 
     return data;
 }
 
-int prepareAddress(struct sockaddr_in * addr, Socket * sock, bool any) {
-    addr->sin_family = AF_INET;
-    addr->sin_port = htons(sock->port);
-
-    if (sock->address) {
-        if (inet_pton(AF_INET, sock->address, &(addr->sin_addr)) <= 0) return EINVALID_IP;
-    } else {
-        if (any) {
-            addr->sin_addr.s_addr = INADDR_ANY;
-        } else {
-            return -1;
-        }
+int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
+    struct addrinfo * info;
+    int err = getaddrinfo(sock->address, NULL, NULL, &info);
+    if (err != 0) {
+        fprintf(stderr, "Error: %s\n", gai_strerror(err));
+        return -1;
     }
 
+    int sfd;
+    struct addrinfo * rp;
+    for (rp = info; rp != NULL; rp = rp->ai_next) {
+        sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+
+        if (sfd == -1)
+            continue;
+        
+        if (function(sfd, rp) != -1)
+            break;
+        
+        close(sfd);
+    }
+
+    if (rp == NULL) {
+        return -1;
+    }
+
+    freeaddrinfo(info);
+
+    sock->data->fd = sfd;
+
     return 0;
+}
+
+int connectFunction(int sfd, struct addrinfo *info) {
+    return connect(sfd, info->ai_addr, info->ai_addrlen);
 }
 
 int connectLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
 
-    struct sockaddr_in addr;
-    if (prepareAddress(&addr, sock, false) == -1) return ENULL_POINTER;
+    // struct sockaddr_in addr;
+    if (prepareSocket(&connectFunction, sock) == -1) return ENULL_POINTER;
 
-    if (connect(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
+    // if (connect(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
 
     return ESUCCESS;
+}
+
+int startFunction(int sfd, struct addrinfo *info) {
+    if (bind(sfd, info->ai_addr, info->ai_addrlen) == -1) return -1;
+
+    if (listen(sfd, 10) == -1) return -1;
+
+    return 0;
 }
 
 int startLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
 
-    struct sockaddr_in addr;
-    if (prepareAddress(&addr, sock, false) == -1) return ENULL_POINTER;
+    if (prepareSocket(&startFunction, sock) == -1) return ENULL_POINTER;
 
-    if (bind(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
+    // if (bind(sock->data->fd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) return EUNKNOWN;
 
-    if (listen(sock->data->fd, 10)) return EUNKNOWN;
+    // if (listen(sock->data->fd, 10)) return EUNKNOWN;
 
     return ESUCCESS;
 }
