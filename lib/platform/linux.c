@@ -166,7 +166,7 @@ int closeLinux(Socket ** sock) {
     return ESUCCESS;
 }
 
-NetHandler * net_linux() {
+NetHandler * net_setupPlatform() {
     NetHandler * handler = malloc(sizeof(NetHandler));
     *handler = (NetHandler) {&initializeLinux, &connectLinux, &startLinux, &loopLinux, &receiveLinux, &sendLinux, &closeConnectionLinux, &closeLinux, NULL};
 

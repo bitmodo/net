@@ -12,8 +12,7 @@ if not compiler.has_header('stdlib.h')
 endif
 
 net_inc = include_directories('include')
-net_src = files('lib/net.c',
-                'lib/platform/platform.c')
+net_src = files('lib/net.c')
 
 # Add source files depending on the compile system
 system = build_machine.system()
