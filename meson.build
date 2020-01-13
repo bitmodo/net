@@ -36,8 +36,21 @@ if not has_platform
     warning('No platform is compiled for. If this is not what you want, check your environment.')
 endif
 
+# Library stuff & headers
+install_headers(files('include/net/net.h', 'include/net/error.h', 'include/net/util.h'), subdir: 'net')
 net_lib = library('net', net_src, include_directories: [net_inc], install: true)
 net_dep = declare_dependency(include_directories: [net_inc], link_with: [net_lib])
+
+# Add pkgconfig stuff
+pkg = import('pkgconfig')
+libs = [net_lib]
+h = ['.', 'include/net']
+pkg.generate(libraries : libs,
+             subdirs : h,
+             version : meson.project_version(),
+             name : meson.project_name(),
+             filebase : meson.project_name(),
+             description : 'A networking library.')
 
 # Setup all of the tests
 subdir('test')
