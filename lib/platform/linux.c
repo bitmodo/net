@@ -97,6 +97,7 @@ int connectFunction(int sfd, struct addrinfo *info) {
 
 int connectLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
+    if (sock->side == SERVER) return EINCORRECT_SIDE;
 
     int code;
     if ((code = prepareSocket(&connectFunction, sock)) == -1) return code;
@@ -114,6 +115,7 @@ int startFunction(int sfd, struct addrinfo *info) {
 
 int startLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
+    if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
     if (prepareSocket(&startFunction, sock) == -1) return ENULL_POINTER;
 
@@ -122,6 +124,7 @@ int startLinux(Socket * sock) {
 
 int loopLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1 || sock->data->fd == -1) return ECLOSED;
+    if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
     int fd;
     if ((fd = accept(sock->data->fd, NULL, 0)) < 0) return EUNKNOWN;
@@ -150,6 +153,7 @@ int sendLinux(Socket * sock, const void * buf, int count) {
 
 int closeConnectionLinux(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn == -1) return ENULL_POINTER;
+    if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
     close(sock->data->conn);
     sock->data->conn = -1;
