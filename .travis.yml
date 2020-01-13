@@ -1,14 +1,16 @@
-language: c
+dist: bionic
+group: travis_latest
+language: python
 cache: ccache
 
-# os:
-# - linux
+os:
+- linux
 # - osx
 # - windows
 
 install: 
-- sudo pip3 install meson
-- sudo /usr/sbin/update-ccache-symlinks
+- pip install meson ninja
+# - sudo /usr/sbin/update-ccache-symlinks
 
 script:
 - meson build
@@ -30,15 +32,15 @@ script:
 #       env:
 #         - MATRIX_EVAL="brew install gcc && CC=gcc-7 && CXX=g++-7"
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - python3
-      - python3-pip
-      - python3-setuptools
-      - python3-wheel
-      - ninja-build
-      - ccache
-      - g++-7
+# addons:
+#   apt:
+#     sources:
+#       - ubuntu-toolchain-r-test
+#     packages:
+#       - python3
+#       - python3-pip
+#       - python3-setuptools
+#       - python3-wheel
+#       - ninja-build
+#       - ccache
+#       - g++-7
