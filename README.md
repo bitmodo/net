@@ -1,4 +1,4 @@
-# Cod Networking
+# Cod Networking [![Build Status](https://travis-ci.org/codmf/net.svg?branch=master)](https://travis-ci.org/codmf/net)
 The Cod networking layer is a simple layer that helps us interface with networking.
 It provides a simple and easy API which can be implemented to support different environments.
 
