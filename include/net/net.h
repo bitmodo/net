@@ -92,8 +92,10 @@ NET_EXPORT void net_setAddress(Socket *, const char *);
 /** Get a socket's address */
 NET_EXPORT const char * net_getAddress(Socket *);
 
+/** Set the socket's address' type */
 NET_EXPORT void net_setAddressType(Socket *, int);
 
+/** Get the socket's address' type */
 NET_EXPORT int net_getAddressType(Socket *);
 
 /** Set a socket's port */
