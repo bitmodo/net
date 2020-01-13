@@ -28,8 +28,10 @@ int socketTypeToNetworkType(int type) {
 int addressTypeToFamilyType(int type) {
     if (type == IPv6) {
         return AF_INET6;
-    } else {
+    } else if (type == IPv4) {
         return AF_INET;
+    } else {
+        return AF_UNSPEC;
     }
 }
 

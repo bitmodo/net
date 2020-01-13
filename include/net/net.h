@@ -33,6 +33,7 @@ enum ENetType {
 
 /** The type of the specified address address */
 enum EAddressType {
+    UNSPEC, /* An unspecified address */
     IPv4, /* An IPv4 address */
     IPv6 /* An IPv6 address */
 };

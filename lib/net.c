@@ -25,7 +25,7 @@ Socket * net_socket(int side, int type) {
     }
 
     Socket * result = malloc(sizeof(Socket));
-    *result = (Socket) {side, type, NULL, IPv4, 0, data};
+    *result = (Socket) {side, type, NULL, UNSPEC, 0, data};
 
     return result;
 }
