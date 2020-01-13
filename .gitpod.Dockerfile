@@ -15,10 +15,3 @@ RUN sudo apt-get update \
     && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/* /tmp/*
 RUN sudo pip3 install meson
 RUN sudo /usr/sbin/update-ccache-symlinks
-
-# CCache
-# RUN sudo apt-get update \
-#     && sudo apt install -yq \
-#     ccache \
-#     && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/* /tmp/*
-RUN sudo /usr/sbin/update-ccache-symlinks
