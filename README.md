@@ -1,4 +1,4 @@
-# Cod Networking [![Build Status](https://travis-ci.org/codmf/net.svg?branch=master)](https://travis-ci.org/codmf/net)
+# Cod Networking [![License](https://img.shields.io/github/license/codmf/net)](https://github.com/codmf/net/blob/master/LICENSE) [![Release](https://img.shields.io/github/v/release/codmf/net?include_prereleases&sort=semver)](https://github.com/codmf/net/releases) [![Build Status](https://img.shields.io/travis/codmf/net)](https://travis-ci.org/codmf/net)
 The Cod networking layer is a simple layer that helps us interface with networking.
 It provides a simple and easy API which can be implemented to support different environments.
 
