@@ -16,22 +16,21 @@ net_src = files('lib/net.c')
 
 # Add source files depending on the compile system
 system = build_machine.system()
-has_platform = false
-if system == 'windows'
+windows = system == 'windows'
+darwin = system == 'darwin'
+posix = system in ['cygwin', 'dragonfly', 'freebsd', 'linux', 'netbsd', 'openbsd', 'sunos']
+
+if windows
     #net_src += files('')
     error('Windows is not yet supported')
-elif system == 'darwin'
+elif darwin
     #net_src += files('')
     error('Darwin is not yet supported')
-endif
-
-if not has_platform
-    if not compiler.has_header('stdio.h') or not compiler.has_header('stdbool.h') or not compiler.has_header('sys/socket.h') or not compiler.has_header('netinet/in.h') or not compiler.has_header('arpa/inet.h') or not compiler.has_header('netdb.h') or not compiler.has_header('unistd.h') or not compiler.has_header('string.h') or not compiler.has_header('errno.h')
-        warning('No platform is compiled for. If this is not what you want, check your environment.')
-    else
-        net_src += files('lib/platform/posix.c')
-        message('Compiling for POSIX since that is the only platform this system supports')
-    endif
+elif posix
+    net_src += files('lib/platform/posix.c')
+    message('Compiling for POSIX since that is the only platform this system supports')
+else
+    warning('No platform is compiled for. If this is not what you want, check your environment.')
 endif
 
 # Library stuff & headers
