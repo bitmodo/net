@@ -23,17 +23,15 @@ if system == 'windows'
 elif system == 'darwin'
     #net_src += files('')
     error('Darwin is not yet supported')
-elif system == 'linux'
-    if not compiler.has_header('stdio.h') or not compiler.has_header('stdbool.h') or not compiler.has_header('sys/socket.h') or not compiler.has_header('netinet/in.h') or not compiler.has_header('arpa/inet.h') or not compiler.has_header('netdb.h') or not compiler.has_header('unistd.h') or not compiler.has_header('string.h') or not compiler.has_header('errno.h')
-        error('Could not find all of the necessary headers for linux. If you are compiling for it. Make sure you have your environment properly setup.')
-    else
-        net_src += files('lib/platform/linux.c')
-        has_platform = true
-    endif
 endif
 
 if not has_platform
-    warning('No platform is compiled for. If this is not what you want, check your environment.')
+    if not compiler.has_header('stdio.h') or not compiler.has_header('stdbool.h') or not compiler.has_header('sys/socket.h') or not compiler.has_header('netinet/in.h') or not compiler.has_header('arpa/inet.h') or not compiler.has_header('netdb.h') or not compiler.has_header('unistd.h') or not compiler.has_header('string.h') or not compiler.has_header('errno.h')
+        warning('No platform is compiled for. If this is not what you want, check your environment.')
+    else
+        net_src += files('lib/platform/posix.c')
+        message('Compiling for POSIX since that is the only platform this system supports')
+    endif
 endif
 
 # Library stuff & headers
