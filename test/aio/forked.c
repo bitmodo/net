@@ -51,25 +51,11 @@ int server() {
                 open = false;
             } else {
                 fprintf(stdout, "Server: Sending pong\n");
-                net_send(sock, message, strlen(message));
+                net_sendText(sock, message);
             }
 
             free(message);
         }
-        // while(strcmp((message = net_receiveText(sock, BUFF_SIZE)), "close") != 0) {
-        //     fprintf(stdout, "Server: Received message:\n\t%s\n", message);
-
-        //     fprintf(stdout, "Server: Sending pong\n");
-        //     net_send(sock, message, strlen(message));
-
-        //     free(message);
-        // }
-        // net_close(&sock);
-        // free(message);
-
-        // // Close the currently open connection
-        // fprintf(stdout, "Server: Closing connection\n");
-        // net_closeConnection(sock);
     }
 
     if (lc != ECLOSED) {
@@ -110,7 +96,7 @@ void client() {
     char message[BUFF_SIZE * 2] = {0};
     memset(message, 'a', BUFF_SIZE * 2 - 1);
     fprintf(stdout, "Client: Sending message:\n\t%s\n", message);
-    net_send(sock, message, strlen(message));
+    net_sendText(sock, message);
 
     fprintf(stdout, "Client: Receiving message\n");
     char * received = net_receiveText(sock, BUFF_SIZE);
@@ -119,7 +105,7 @@ void client() {
 
     char close[] = "close";
     fprintf(stdout, "Client: Sending close command\n");
-    net_send(sock, close, strlen(close));
+    net_sendText(sock, close);
 
     // Close the socket
     net_close(&sock);

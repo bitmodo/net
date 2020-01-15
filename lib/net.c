@@ -136,3 +136,12 @@ int net_send(Socket * sock, const void * buf, int count) {
 
     return handler->send(sock, buf, count);
 }
+
+int net_sendText(Socket * sock, const char * text) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || !(handler->sendText)) {
+        return ENULL_POINTER;
+    }
+
+    return handler->sendText(sock, text);
+}

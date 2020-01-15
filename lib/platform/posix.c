@@ -187,6 +187,10 @@ int sendPosix(Socket * sock, const void * buf, int count) {
     return ESUCCESS;
 }
 
+int sendTextPosix(Socket * sock, const char * text) {
+    return net_send(sock, text, strlen(text));
+}
+
 int closeConnectionPosix(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn == -1) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
@@ -210,7 +214,7 @@ int closePosix(Socket ** sock) {
 
 NetHandler * net_setupPlatform() {
     NetHandler * handler = malloc(sizeof(NetHandler));
-    *handler = (NetHandler) {&initializePosix, &connectPosix, &startPosix, &loopPosix, &receivePosix, &receiveTextPosix, &sendPosix, &closeConnectionPosix, &closePosix, NULL};
+    *handler = (NetHandler) {&initializePosix, &connectPosix, &startPosix, &loopPosix, &receivePosix, &receiveTextPosix, &sendPosix, &sendTextPosix, &closeConnectionPosix, &closePosix, NULL};
 
     return handler;
 }
