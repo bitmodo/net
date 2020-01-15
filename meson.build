@@ -49,5 +49,6 @@ pkg.generate(libraries : libs,
              filebase : meson.project_name(),
              description : 'A networking library.')
 
-# Setup all of the tests
+# Setup all of the tests and examples
 subdir('test')
+subdir('example')

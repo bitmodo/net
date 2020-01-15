@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
@@ -48,7 +49,7 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     hints.ai_family = addressTypeToFamilyType(sock->addressType); // Allow IPv4 or IPv6
     hints.ai_socktype = socketTypeToNetworkType(sock->type);
     hints.ai_flags = (sock->side == SERVER ? AI_PASSIVE : 0) | AI_V4MAPPED | AI_ADDRCONFIG; // For wildcard IP address
-    hints.ai_protocol = sock->type == TCP ? IPPROTO_TCP : sock->type == UDP ? IPPROTO_UDP : 0; // Any protocol
+    hints.ai_protocol = sock->type == TCP ? IPPROTO_TCP : (sock->type == UDP ? IPPROTO_UDP : 0); // Any protocol
 
     struct addrinfo * info;
     int err = getaddrinfo(sock->address, NULL, &hints, &info);
@@ -62,10 +63,12 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     for (rp = info; rp != NULL; rp = rp->ai_next) {
         sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 
-        if (rp->ai_family == AF_INET) {
-            ((struct sockaddr_in *) rp->ai_addr)->sin_port = sock->port;
-        } else if (rp->ai_family == AF_INET6) {
-            ((struct sockaddr_in6 *) rp->ai_addr)->sin6_port = sock->port;
+        if (sock->port != 0) {
+            if (rp->ai_family == AF_INET) {
+                ((struct sockaddr_in *) rp->ai_addr)->sin_port = htons(sock->port);
+            } else if (rp->ai_family == AF_INET6) {
+                ((struct sockaddr_in6 *) rp->ai_addr)->sin6_port = htons(sock->port);
+            }
         }
 
         if (sfd == -1)
