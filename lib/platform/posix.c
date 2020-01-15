@@ -152,23 +152,18 @@ char * receiveTextPosix(Socket * sock, int size) {
     *result = 0;
     unsigned long resultLen = 0;
     int rs;
-    // while ((rs = net_receive(sock, buffer, bufferSize)) > 0) {
     do {
         rs = net_receive(sock, buffer, bufferSize);
         // Create a new buffer that has enough space for both buffers then
         // concatenate the previous ones with the new buffer then set the
         // result to the new buffer
         unsigned recvSize = rs >= bufferSize ? bufferSize : rs;
-        // fprintf(stdout, "%lu - %s\n", resultLen, result);
-        // fprintf(stdout, "%u - %s\n\n", recvSize, buffer);
         unsigned size = resultLen + recvSize + 1;
         char * tmp = malloc(size);
         memset(tmp, 0, size);
         memcpy(tmp, result, sizeof(char) * resultLen);
         memcpy(tmp + resultLen, buffer, sizeof(char) * recvSize);
-        // memset(tmp, 0, newBufferSize);
-        // strcat(tmp, result);
-        // strcat(tmp, buffer);
+
         free(result);
         result = tmp;
         resultLen += recvSize;

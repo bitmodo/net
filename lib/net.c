@@ -99,7 +99,6 @@ NET_FUNCTION(connect)
 NET_FUNCTION(start)
 NET_FUNCTION(loop)
 NET_FUNCTION(closeConnection)
-// NET_FUNCTION(close)
 
 int net_close(Socket ** sock) {
     NetHandler * handler = net_getHandler();
