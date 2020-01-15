@@ -18,7 +18,7 @@ net_src = files('lib/net.c')
 system = build_machine.system()
 windows = system == 'windows'
 darwin = system == 'darwin'
-posix = system in ['cygwin', 'dragonfly', 'freebsd', 'linux', 'netbsd', 'openbsd', 'sunos']
+posix = system in ['cygwin', 'darwin', 'dragonfly', 'freebsd', 'linux', 'netbsd', 'openbsd', 'sunos']
 
 if windows
     #net_src += files('')

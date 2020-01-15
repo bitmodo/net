@@ -119,6 +119,15 @@ int net_receive(Socket * sock, void * buf, int count) {
     return handler->receive(sock, buf, count);
 }
 
+char * net_receiveText(Socket * sock, int size) {
+    NetHandler * handler = net_getHandler();
+    if (!handler || !(handler->receiveText)) {
+        return NULL;
+    }
+
+    return handler->receiveText(sock, size);
+}
+
 int net_send(Socket * sock, const void * buf, int count) {
     NetHandler * handler = net_getHandler();
     if (!handler || !(handler->send)) {

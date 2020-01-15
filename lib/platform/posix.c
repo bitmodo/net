@@ -35,7 +35,7 @@ int addressTypeToFamilyType(int type) {
     }
 }
 
-SocketData * initializeLinux(int side, int type) {
+SocketData * initializePosix(int side, int type) {
     SocketData * data = malloc(sizeof(SocketData));
     *data = (SocketData) {-1, -1};
 
@@ -66,9 +66,6 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
             ((struct sockaddr_in *) rp->ai_addr)->sin_port = sock->port;
         } else if (rp->ai_family == AF_INET6) {
             ((struct sockaddr_in6 *) rp->ai_addr)->sin6_port = sock->port;
-        } else {
-            fprintf(stderr, "Non IPv4 addresses are not yet supported\n");
-            return EUNSUPPORTED;
         }
 
         if (sfd == -1)
@@ -95,7 +92,7 @@ int connectFunction(int sfd, struct addrinfo *info) {
     return connect(sfd, info->ai_addr, info->ai_addrlen);
 }
 
-int connectLinux(Socket * sock) {
+int connectPosix(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
     if (sock->side == SERVER) return EINCORRECT_SIDE;
 
@@ -113,7 +110,7 @@ int startFunction(int sfd, struct addrinfo *info) {
     return 0;
 }
 
-int startLinux(Socket * sock) {
+int startPosix(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
@@ -122,7 +119,7 @@ int startLinux(Socket * sock) {
     return ESUCCESS;
 }
 
-int loopLinux(Socket * sock) {
+int loopPosix(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1 || sock->data->fd == -1) return ECLOSED;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
@@ -134,7 +131,8 @@ int loopLinux(Socket * sock) {
     return ESUCCESS;
 }
 
-int receiveLinux(Socket * sock, void * buf, int count) {
+// TODO: Fix the error codes
+int receivePosix(Socket * sock, void * buf, int count) {
     if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
 
     int size;
@@ -143,7 +141,45 @@ int receiveLinux(Socket * sock, void * buf, int count) {
     return size;
 }
 
-int sendLinux(Socket * sock, const void * buf, int count) {
+char * receiveTextPosix(Socket * sock, int size) {
+    if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return NULL;
+
+    size_t bufferSize = sizeof(char) * size;
+    char * buffer = malloc(bufferSize);
+    memset(buffer, 0, bufferSize);
+
+    char * result = malloc(sizeof(char));
+    *result = 0;
+    unsigned long resultLen = 0;
+    int rs;
+    // while ((rs = net_receive(sock, buffer, bufferSize)) > 0) {
+    do {
+        rs = net_receive(sock, buffer, bufferSize);
+        // Create a new buffer that has enough space for both buffers then
+        // concatenate the previous ones with the new buffer then set the
+        // result to the new buffer
+        unsigned recvSize = rs >= bufferSize ? bufferSize : rs;
+        // fprintf(stdout, "%lu - %s\n", resultLen, result);
+        // fprintf(stdout, "%u - %s\n\n", recvSize, buffer);
+        unsigned size = resultLen + recvSize + 1;
+        char * tmp = malloc(size);
+        memset(tmp, 0, size);
+        memcpy(tmp, result, sizeof(char) * resultLen);
+        memcpy(tmp + resultLen, buffer, sizeof(char) * recvSize);
+        // memset(tmp, 0, newBufferSize);
+        // strcat(tmp, result);
+        // strcat(tmp, buffer);
+        free(result);
+        result = tmp;
+        resultLen += recvSize;
+    } while (rs == bufferSize);
+
+    free(buffer);
+
+    return result;
+}
+
+int sendPosix(Socket * sock, const void * buf, int count) {
     if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
 
     if (send(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0) < 0) return EUNKNOWN;
@@ -151,7 +187,7 @@ int sendLinux(Socket * sock, const void * buf, int count) {
     return ESUCCESS;
 }
 
-int closeConnectionLinux(Socket * sock) {
+int closeConnectionPosix(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn == -1) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
@@ -161,7 +197,7 @@ int closeConnectionLinux(Socket * sock) {
     return ESUCCESS;
 }
 
-int closeLinux(Socket ** sock) {
+int closePosix(Socket ** sock) {
     if (!sock || !((*sock)->data)) return ENULL_POINTER;
 
     if ((*sock)->data->fd != -1) close((*sock)->data->fd);
@@ -174,7 +210,7 @@ int closeLinux(Socket ** sock) {
 
 NetHandler * net_setupPlatform() {
     NetHandler * handler = malloc(sizeof(NetHandler));
-    *handler = (NetHandler) {&initializeLinux, &connectLinux, &startLinux, &loopLinux, &receiveLinux, &sendLinux, &closeConnectionLinux, &closeLinux, NULL};
+    *handler = (NetHandler) {&initializePosix, &connectPosix, &startPosix, &loopPosix, &receivePosix, &receiveTextPosix, &sendPosix, &closeConnectionPosix, &closePosix, NULL};
 
     return handler;
 }
