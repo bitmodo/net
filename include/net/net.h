@@ -58,9 +58,9 @@ typedef struct NetHandler {
     int (* start)(Socket *); /* Server. Initialize a socket and prepare it for incoming connections */
     int (* loop)(Socket *); /* Server. Accept a connection and prepare the environment to use the connection */
     int (* receive)(Socket *, void *, int); /* Receive data from the currently opened connection. Works on client and server */
-    char * (* receiveText)(Socket *, int);
+    char * (* receiveText)(Socket *, int); /* Receive a C string from the socket. Int parameter is buffer size */
     int (* send)(Socket *, const void *, int); /* Send data on the currently opened connection. Works on client and server */
-    int (* sendText)(Socket *, const char *);
+    int (* sendText)(Socket *, const char *); /* Send text over the socket. This is simply a convenience function */
     int (* closeConnection)(Socket *); /* Server. Close the currently opened connection and free memory relating to it */
     int (* close)(Socket **); /* Close and dispose of a socket. This should free the socket and any related data */
     void (* cleanup)(); /* Clean up the environment and free any related memory */
@@ -125,11 +125,23 @@ NET_EXPORT int net_loop(Socket *);
     count. The number of bytes actually read will be returned and 0 if the connection closed. */
 NET_EXPORT int net_receive(Socket *, void *, int);
 
+/** Receive some text from the socket. The integer argument is used to specify the buffer size.
+    This will receive messages from the socket and append them to an output buffer until a null
+    byte is received.
+    The actual process of this is to allocate a character buffer using the inputted size as well
+    as an output buffer of one (null byte) character. A message is then received and it is copied
+    into a temporary buffer along with the contents of the output buffer. The output buffer is then
+    changed to point to the temporary buffer. This process continues until a message is received which
+    contains a null byte.
+    This means that the resulting string is allocated into the heap and needs to be freed when it is
+    finished being used. */
 NET_EXPORT char * net_receiveText(Socket *, int);
 
 /** Send data on the socket. Use the data in the specified buffer up to the specified count. */
 NET_EXPORT int net_send(Socket *, const void *, int);
 
+/** Send some text over the socket. This is really mean to be a convenience function to make it
+    quicker and easier to send text without having to mess with buffers and sizes. */
 NET_EXPORT int net_sendText(Socket *, const char *);
 
 /** Server side only. Close the currently open connection. */
