@@ -47,8 +47,8 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = addressTypeToFamilyType(sock->addressType); // Allow IPv4 or IPv6
     hints.ai_socktype = socketTypeToNetworkType(sock->type);
-    hints.ai_flags = sock->side == SERVER ? AI_PASSIVE : 0; // For wildcard IP address
-    hints.ai_protocol = 0; // Any protocol
+    hints.ai_flags = (sock->side == SERVER ? AI_PASSIVE : 0) | AI_V4MAPPED | AI_ADDRCONFIG; // For wildcard IP address
+    hints.ai_protocol = sock->type == TCP ? IPPROTO_TCP : sock->type == UDP ? IPPROTO_UDP : 0; // Any protocol
 
     struct addrinfo * info;
     int err = getaddrinfo(sock->address, NULL, &hints, &info);
