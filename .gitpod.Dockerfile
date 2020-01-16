@@ -13,5 +13,5 @@ RUN sudo apt-get update \
         valgrind \
         ccache \
     && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/* /tmp/*
-RUN sudo pip3 install meson
+RUN sudo pip3 install meson gcovr
 RUN sudo /usr/sbin/update-ccache-symlinks
