@@ -37,9 +37,9 @@ int main(int argc, char ** argv) {
             exit(EXIT_FAILURE);
         }
 
-        char request[] = "GET / HTTP/1.0\r\n\r\n";
+        char request[19] = "GET / HTTP/1.0\r\n\r\n";
         fprintf(stdout, "Request:\n%s\n\n", request);
-        net_send(sock, request, strlen(request));
+        net_send(sock, request, sizeof(request)/sizeof(char));
 
         char * response = net_receiveText(sock, 1024);
         fprintf(stdout, "Received message:\n%s\n\n", response);

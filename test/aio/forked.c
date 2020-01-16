@@ -102,7 +102,7 @@ void client() {
     fprintf(stdout, "Client: Received:\n\t%s\n", received);
     free(received);
 
-    char close[] = "close";
+    char * close = "close";
     fprintf(stdout, "Client: Sending close command\n");
     net_send(sock, close, strlen(close));
 
