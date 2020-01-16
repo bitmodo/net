@@ -18,7 +18,7 @@ int main(int argc, char ** argv) {
         scanf("%s %u", host, &port);
 
         if (strcmp(host, "close") == 0) {
-            fprintf(stdout, "Finishing up");
+            fprintf(stdout, "Finishing up\n");
             run = false;
             continue;
         }
@@ -37,7 +37,6 @@ int main(int argc, char ** argv) {
             exit(EXIT_FAILURE);
         }
 
-        // char * request = strcat(strcat("GET / HTTP/1.1\r\nHost: ", host), "\r\nConnection: close\r\n\r\n");
         char request[] = "GET / HTTP/1.0\r\n\r\n";
         fprintf(stdout, "Request:\n%s\n\n", request);
         net_sendText(sock, request);
