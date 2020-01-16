@@ -27,7 +27,7 @@ You could clone this repository to make some changes, or you could use this proj
 If you want to make changes, first you need to clone this repository.
 Once you have the code, you can run the following command to build the project:
 
-```cmd
+```text
 meson build
 ```
 This will build the project into the `build` directory.
@@ -40,7 +40,7 @@ If you want to use this project as a dependency, first you need to have a projec
 From there, you can add this repository as a subproject using Meson's [wrap system](https://mesonbuild.com/Wrap-dependency-system-manual.html).
 Your wrap file should look something like the following:
 
-```
+```text
 [wrap-git]
 url = https://github.com/codmf/net.git
 revision = head

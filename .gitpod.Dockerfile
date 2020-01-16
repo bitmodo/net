@@ -1,6 +1,6 @@
-FROM gitpod/workspace-full
-                    
-USER gitpod
+FROM gitpod/workspace-full:build-branch-master
+
+USER root
 
 # Install packages
 RUN sudo apt-get update \
@@ -13,5 +13,9 @@ RUN sudo apt-get update \
         valgrind \
         ccache \
     && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/* /tmp/*
-RUN sudo pip3 install meson gcovr
 RUN sudo /usr/sbin/update-ccache-symlinks
+
+USER gitpod
+
+# Install pip packages
+RUN pip3 install meson gcovr

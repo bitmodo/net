@@ -40,9 +40,8 @@ int server() {
         fprintf(stdout, "Server: Connected to client. Waiting for message\n");
 
         bool open = true;
-        char * message;
         while(open) {
-            message = net_receiveText(sock, BUFF_SIZE);
+            char * message = net_receiveText(sock, BUFF_SIZE);
             fprintf(stdout, "Server: Received message:\n\t%s\n", message);
 
             if (strcmp(message, "close") == 0) {
@@ -51,7 +50,7 @@ int server() {
                 open = false;
             } else {
                 fprintf(stdout, "Server: Sending pong\n");
-                net_sendText(sock, message);
+                net_send(sock, message, strlen(message));
             }
 
             free(message);
@@ -96,7 +95,7 @@ void client() {
     char message[BUFF_SIZE * 2] = {0};
     memset(message, 'a', BUFF_SIZE * 2 - 1);
     fprintf(stdout, "Client: Sending message:\n\t%s\n", message);
-    net_sendText(sock, message);
+    net_send(sock, message, strlen(message));
 
     fprintf(stdout, "Client: Receiving message\n");
     char * received = net_receiveText(sock, BUFF_SIZE);
@@ -105,7 +104,7 @@ void client() {
 
     char close[] = "close";
     fprintf(stdout, "Client: Sending close command\n");
-    net_sendText(sock, close);
+    net_send(sock, close, strlen(close));
 
     // Close the socket
     net_close(&sock);

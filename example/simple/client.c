@@ -15,7 +15,7 @@ int main(int argc, char ** argv) {
 
         char host[100];
         unsigned port;
-        scanf("%s %u", host, &port);
+        scanf("%99s %u", host, &port);
 
         if (strcmp(host, "close") == 0) {
             fprintf(stdout, "Finishing up\n");
@@ -39,7 +39,7 @@ int main(int argc, char ** argv) {
 
         char request[] = "GET / HTTP/1.0\r\n\r\n";
         fprintf(stdout, "Request:\n%s\n\n", request);
-        net_sendText(sock, request);
+        net_send(sock, request, strlen(request));
 
         char * response = net_receiveText(sock, 1024);
         fprintf(stdout, "Received message:\n%s\n\n", response);

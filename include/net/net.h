@@ -60,7 +60,6 @@ typedef struct NetHandler {
     int (* receive)(Socket *, void *, int); /* Receive data from the currently opened connection. Works on client and server */
     char * (* receiveText)(Socket *, int); /* Receive a C string from the socket. Int parameter is buffer size */
     int (* send)(Socket *, const void *, int); /* Send data on the currently opened connection. Works on client and server */
-    int (* sendText)(Socket *, const char *); /* Send text over the socket. This is simply a convenience function */
     int (* closeConnection)(Socket *); /* Server. Close the currently opened connection and free memory relating to it */
     int (* close)(Socket **); /* Close and dispose of a socket. This should free the socket and any related data */
     void (* cleanup)(); /* Clean up the environment and free any related memory */
@@ -139,10 +138,6 @@ NET_EXPORT char * net_receiveText(Socket *, int);
 
 /** Send data on the socket. Use the data in the specified buffer up to the specified count. */
 NET_EXPORT int net_send(Socket *, const void *, int);
-
-/** Send some text over the socket. This is really mean to be a convenience function to make it
-    quicker and easier to send text without having to mess with buffers and sizes. */
-NET_EXPORT int net_sendText(Socket *, const char *);
 
 /** Server side only. Close the currently open connection. */
 NET_EXPORT int net_closeConnection(Socket *);
