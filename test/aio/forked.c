@@ -95,16 +95,16 @@ void client() {
     char message[BUFF_SIZE * 2] = {0};
     memset(message, 'a', BUFF_SIZE * 2 - 1);
     fprintf(stdout, "Client: Sending message:\n\t%s\n", message);
-    net_send(sock, message, strlen(message));
+    net_send(sock, message, sizeof(message)/sizeof(char) - 1);
 
     fprintf(stdout, "Client: Receiving message\n");
     char * received = net_receiveText(sock, BUFF_SIZE);
     fprintf(stdout, "Client: Received:\n\t%s\n", received);
     free(received);
 
-    char * close = "close";
+    char close[] = "close";
     fprintf(stdout, "Client: Sending close command\n");
-    net_send(sock, close, strlen(close));
+    net_send(sock, close, sizeof(close)/sizeof(char) - 1);
 
     // Close the socket
     net_close(&sock);
