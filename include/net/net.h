@@ -7,18 +7,6 @@ extern "C" {
 
 #include "util.h"
 
-// Naming conventions:
-//
-// Struct: TitleCase
-// Struct members: cammelCase
-// Enum: ETitleCase
-// Enum members: cammelCase or pALL_CAPS where p = one letter prefix
-// Public functions: net_cammelCase
-// Private functions: _TitleCase
-// Trivial variables: i, x, n, f, etc...
-// Local variables: cammelCase
-// Global variables: g_cammelCase
-
 /** The side of a connection */
 enum ENetSide {
     CLIENT, /* The client side of a connection */
@@ -58,7 +46,7 @@ typedef struct NetHandler {
     int (* start)(Socket *); /* Server. Initialize a socket and prepare it for incoming connections */
     int (* loop)(Socket *); /* Server. Accept a connection and prepare the environment to use the connection */
     int (* receive)(Socket *, void *, int); /* Receive data from the currently opened connection. Works on client and server */
-    char * (* receiveText)(Socket *, int); /* Receive a C string from the socket. Int parameter is buffer size */
+    char * (* receiveText)(Socket *); /* Receive a C string from the socket. Int parameter is buffer size */
     int (* send)(Socket *, const void *, int); /* Send data on the currently opened connection. Works on client and server */
     int (* closeConnection)(Socket *); /* Server. Close the currently opened connection and free memory relating to it */
     int (* close)(Socket **); /* Close and dispose of a socket. This should free the socket and any related data */
@@ -68,61 +56,61 @@ typedef struct NetHandler {
 /** Setup the environment for networking. This basically just sets the environment to whatever
     setupPlatform spits out, so it you wanted to use your own handler, you could simply omit this
     call and set handler to your implementation. */
-NET_EXPORT void net_setup();
+NET_EXPORT void netSetup();
 
 /** An implementation specific setup function to provide a handler for said implementation */
-NET_EXPORT NetHandler * net_setupPlatform();
+NET_EXPORT NetHandler * netSetupPlatform();
 
 /** Get the current handler */
-NET_EXPORT NetHandler * net_getHandler();
+NET_EXPORT NetHandler * netGetHandler();
 
 /** Set the current handler */
-NET_EXPORT void net_setHandler(NetHandler *);
+NET_EXPORT void netSetHandler(NetHandler *);
 
 /** Create a socket using the specified side and type. Side refers to ENetSide and type refers to ENetType */
-NET_EXPORT Socket * net_socket(int side, int type);
+NET_EXPORT Socket * netSocket(int side, int type);
 
 /** Cleanup the environment of networking related things. This should be the last call when using networking.
     After this is called, it would need to be setup again before networking functions can be used. */
-NET_EXPORT void net_cleanup();
+NET_EXPORT void netCleanup();
 
 // Functions to manipulate the ip and port of the socket
 
 /** Set a socket's address */
-NET_EXPORT void net_setAddress(Socket *, const char *);
+NET_EXPORT void netSetAddress(Socket *, const char *);
 
 /** Get a socket's address */
-NET_EXPORT const char * net_getAddress(Socket *);
+NET_EXPORT const char * netGetAddress(Socket *);
 
 /** Set the socket's address' type */
-NET_EXPORT void net_setAddressType(Socket *, int);
+NET_EXPORT void netSetAddressType(Socket *, int);
 
 /** Get the socket's address' type */
-NET_EXPORT int net_getAddressType(Socket *);
+NET_EXPORT int netGetAddressType(Socket *);
 
 /** Set a socket's port */
-NET_EXPORT void net_setPort(Socket *, unsigned);
+NET_EXPORT void netSetPort(Socket *, unsigned);
 
 /** Get a socket's port */
-NET_EXPORT unsigned net_getPort(Socket *);
+NET_EXPORT unsigned netGetPort(Socket *);
 
 // Functions relating to the manipulation of a socket
 
 /** Client side only. This will connect the specified socket to whatever address and port
     were previously assigned. Once connected, data can be sent and received on this socket. */
-NET_EXPORT int net_connect(Socket *);
+NET_EXPORT int netConnect(Socket *);
 
 /** Server side only. Starts the socket on the previously assigned address and port. Once
     started, connections can be listened for */
-NET_EXPORT int net_start(Socket *);
+NET_EXPORT int netStart(Socket *);
 
 /** Server side only. Listen for a connection on the socket. When one is made, return ESUCCESS
     and prepare the socket for further access to the connection. */
-NET_EXPORT int net_loop(Socket *);
+NET_EXPORT int netLoop(Socket *);
 
 /** Recieve data from the socket. Put the data recieved in the specified port up to the specified
     count. The number of bytes actually read will be returned and 0 if the connection closed. */
-NET_EXPORT int net_receive(Socket *, void *, int);
+NET_EXPORT int netReceive(Socket *, void *, int);
 
 /** Receive some text from the socket. The integer argument is used to specify the buffer size.
     This will receive messages from the socket and append them to an output buffer until a null
@@ -134,17 +122,17 @@ NET_EXPORT int net_receive(Socket *, void *, int);
     contains a null byte.
     This means that the resulting string is allocated into the heap and needs to be freed when it is
     finished being used. */
-NET_EXPORT char * net_receiveText(Socket *, int);
+NET_EXPORT char * netReceiveText(Socket *);
 
 /** Send data on the socket. Use the data in the specified buffer up to the specified count. */
-NET_EXPORT int net_send(Socket *, const void *, int);
+NET_EXPORT int netSend(Socket *, const void *, int);
 
 /** Server side only. Close the currently open connection. */
-NET_EXPORT int net_closeConnection(Socket *);
+NET_EXPORT int netCloseConnection(Socket *);
 
 /** Close the socket. This should be a reference to the socket pointer, and will free and null the pointer
     so that it cannot be used later. */
-NET_EXPORT int net_close(Socket **);
+NET_EXPORT int netClose(Socket **);
 
 #ifdef __cplusplus
 }

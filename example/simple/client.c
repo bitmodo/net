@@ -7,7 +7,7 @@
 #include <string.h>
 
 int main(int argc, char ** argv) {
-    net_setup();
+    netSetup();
 
     bool run = true;
     while (run) {
@@ -23,31 +23,30 @@ int main(int argc, char ** argv) {
             continue;
         }
 
-        Socket * sock = net_socket(CLIENT, TCP);
+        Socket * sock = netSocket(CLIENT, TCP);
 
-        net_setAddress(sock, host);
-        net_setPort(sock, port);
+        netSetAddress(sock, host);
+        netSetPort(sock, port);
 
         fprintf(stdout, "Connecting to %s:%u\n", host, port);
         int ce;
-        if ((ce = net_connect(sock)) != ESUCCESS) {
+        if ((ce = netConnect(sock)) != ESUCCESS) {
             fprintf(stderr, "Error connecting: %d\n", ce);
 
-            net_cleanup();
+            netCleanup();
             exit(EXIT_FAILURE);
         }
 
-        char request[19] = "GET / HTTP/1.0\r\n\r\n";
-        fprintf(stdout, "Request:\n%s\n\n", request);
-        net_send(sock, request, sizeof(request)/sizeof(char));
+        char request[] = "GET / HTTP/1.0\r\n\r\n";
+        netSend(sock, request, sizeof(request)/sizeof(char));
 
-        char * response = net_receiveText(sock, 1024);
-        fprintf(stdout, "Received message:\n%s\n\n", response);
+        char * response = netReceiveText(sock);
+        fprintf(stdout, "Received message:\n\n%s\n\n", response);
         free(response);
 
-        net_close(&sock);
+        netClose(&sock);
     }
 
-    net_cleanup();
+    netCleanup();
     exit(EXIT_SUCCESS);
 }

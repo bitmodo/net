@@ -1,9 +1,10 @@
-if posix or (compiler.has_header('unistd.h') and compiler.has_function('fork'))
-    aio_forked = executable('test-aio-forked', 'forked.c', dependencies: [net_dep])
-    test('aio-forked', aio_forked)
-else
-    warning('A Posix compliant system was not found. Not running the all-in-one forked test.')
-endif
+# I think this test is kinda broke with fork
+# if posix or (compiler.has_header('unistd.h') and compiler.has_function('fork'))
+#     aio_forked = executable('test-aio-forked', 'forked.c', dependencies: [net_dep])
+#     test('aio-forked', aio_forked)
+# else
+#     warning('A Posix compliant system was not found. Not running the all-in-one forked test.')
+# endif
 
 pthread_dep = dependency('threads', required: false)
 

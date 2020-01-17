@@ -5,21 +5,21 @@
 
 NetHandler * g_handler;
 
-void net_setup() {
-    net_setHandler(net_setupPlatform());
+void netSetup() {
+    netSetHandler(netSetupPlatform());
 }
 
-NetHandler * net_getHandler() {
+NetHandler * netGetHandler() {
     return g_handler;
 }
 
-void net_setHandler(NetHandler * handler) {
+void netSetHandler(NetHandler * handler) {
     g_handler = handler;
 }
 
-Socket * net_socket(int side, int type) {
+Socket * netSocket(int side, int type) {
     SocketData * data = NULL;
-    NetHandler * handler = net_getHandler();
+    NetHandler * handler = netGetHandler();
     if (handler && handler->initialize) {
         data = handler->initialize(side, type);
     }
@@ -30,8 +30,8 @@ Socket * net_socket(int side, int type) {
     return result;
 }
 
-void net_cleanup() {
-    NetHandler * handler = net_getHandler();
+void netCleanup() {
+    NetHandler * handler = netGetHandler();
 
     if (handler) {
         if (handler->cleanup) {
@@ -39,17 +39,17 @@ void net_cleanup() {
         }
 
         free(handler);
-        net_setHandler(NULL);
+        netSetHandler(NULL);
     }
 }
 
-void net_setAddress(Socket * sock, const char * addr) {
+void netSetAddress(Socket * sock, const char * addr) {
     if (sock) {
         sock->address = addr;
     }
 }
 
-const char * net_getAddress(Socket * sock) {
+const char * netGetAddress(Socket * sock) {
     if (sock) {
         return sock->address;
     } else {
@@ -57,13 +57,13 @@ const char * net_getAddress(Socket * sock) {
     }
 }
 
-void net_setAddressType(Socket * sock, int type) {
+void netSetAddressType(Socket * sock, int type) {
     if (sock) {
         sock->addressType = type;
     }
 }
 
-int net_getAddressType(Socket * sock) {
+int netGetAddressType(Socket * sock) {
     if (sock) {
         return sock->addressType;
     } else {
@@ -71,13 +71,13 @@ int net_getAddressType(Socket * sock) {
     }
 }
 
-void net_setPort(Socket * sock, unsigned port) {
+void netSetPort(Socket * sock, unsigned port) {
     if (sock) {
         sock->port = port;
     }
 }
 
-unsigned net_getPort(Socket * sock) {
+unsigned netGetPort(Socket * sock) {
     if (sock) {
         return sock->port;
     } else {
@@ -85,9 +85,9 @@ unsigned net_getPort(Socket * sock) {
     }
 }
 
-#define NET_FUNCTION(name)                   \
-int net_ ## name(Socket * sock) {            \
-    NetHandler * handler = net_getHandler(); \
+#define NET_FUNCTION(capname, name)                   \
+int net ## capname(Socket * sock) {            \
+    NetHandler * handler = netGetHandler(); \
     if (!handler || !(handler->name)) {      \
         return ENULL_POINTER;                \
     }                                        \
@@ -95,13 +95,13 @@ int net_ ## name(Socket * sock) {            \
     return handler->name(sock);              \
 }
 
-NET_FUNCTION(connect)
-NET_FUNCTION(start)
-NET_FUNCTION(loop)
-NET_FUNCTION(closeConnection)
+NET_FUNCTION(Connect, connect)
+NET_FUNCTION(Start, start)
+NET_FUNCTION(Loop, loop)
+NET_FUNCTION(CloseConnection, closeConnection)
 
-int net_close(Socket ** sock) {
-    NetHandler * handler = net_getHandler();
+int netClose(Socket ** sock) {
+    NetHandler * handler = netGetHandler();
     if (!handler || !(handler->close)) {
         return ENULL_POINTER;
     }
@@ -109,8 +109,8 @@ int net_close(Socket ** sock) {
     return handler->close(sock);
 }
 
-int net_receive(Socket * sock, void * buf, int count) {
-    NetHandler * handler = net_getHandler();
+int netReceive(Socket * sock, void * buf, int count) {
+    NetHandler * handler = netGetHandler();
     if (!handler || !(handler->receive)) {
         return ENULL_POINTER;
     }
@@ -118,17 +118,17 @@ int net_receive(Socket * sock, void * buf, int count) {
     return handler->receive(sock, buf, count);
 }
 
-char * net_receiveText(Socket * sock, int size) {
-    NetHandler * handler = net_getHandler();
+char * netReceiveText(Socket * sock) {
+    NetHandler * handler = netGetHandler();
     if (!handler || !(handler->receiveText)) {
         return NULL;
     }
 
-    return handler->receiveText(sock, size);
+    return handler->receiveText(sock);
 }
 
-int net_send(Socket * sock, const void * buf, int count) {
-    NetHandler * handler = net_getHandler();
+int netSend(Socket * sock, const void * buf, int count) {
+    NetHandler * handler = netGetHandler();
     if (!handler || !(handler->send)) {
         return ENULL_POINTER;
     }

@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <poll.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -68,7 +70,7 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
             ((struct sockaddr_in6 *) rp->ai_addr)->sin6_port = htons(sock->port);
         }
 
-        if (sfd == -1)
+        if (sfd < 0)
             continue;
         
         if (function(sfd, rp) != -1)
@@ -141,43 +143,57 @@ int receivePosix(Socket * sock, void * buf, int count) {
     return size;
 }
 
-char * receiveTextPosix(Socket * sock, int size) {
+char * receiveTextPosix(Socket * sock) {
     if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return NULL;
 
-    size_t bufferSize = sizeof(char) * size;
-    char * buffer = malloc(bufferSize);
-    memset(buffer, 0, bufferSize);
+    struct pollfd pfds[1];
+    pfds[0].fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
+    pfds[0].events = POLLIN;
 
     char * result = malloc(sizeof(char));
-    *result = 0;
-    unsigned long resultLen = 0;
-    int rs;
-    do {
-        rs = net_receive(sock, buffer, bufferSize);
-        // Create a new buffer that has enough space for both buffers then
-        // concatenate the previous ones with the new buffer then set the
-        // result to the new buffer
-        unsigned recvSize = rs >= bufferSize ? bufferSize : rs;
-        unsigned size = resultLen + recvSize + 1;
-        char * tmp = malloc(size);
-        memset(tmp, 0, size);
-        memcpy(tmp, result, sizeof(char) * resultLen);
-        memcpy(tmp + resultLen, buffer, sizeof(char) * recvSize);
+    int length = 0;
 
-        free(result);
-        result = tmp;
-        resultLen += recvSize;
-    } while (rs == bufferSize);
+    while (1) {
+        int events = poll(pfds, 1, -1);
+        if (events <= 0) {
+            return NULL;
+        }
 
-    free(buffer);
+        if (!(pfds[0].revents & POLLIN)) {
+            return NULL;
+        }
 
-    return result;
+        int len = 0;
+        ioctl(pfds[0].fd, FIONREAD, &len);
+        if (len <= 0) {
+            result = realloc(result, length+1);
+            result[length] = '\0';
+            
+            return result;
+        }
+
+        int idx = length;
+        length += len;
+        result = realloc(result, length);
+        while (len > 0) {
+            int i = recv(pfds[0].fd, result + idx, len, 0);
+            if (i < 0) return NULL;
+            idx += i;
+            len -= i;
+        }
+    }
 }
 
 int sendPosix(Socket * sock, const void * buf, int count) {
     if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
 
-    if (send(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0) < 0) return EUNKNOWN;
+    int fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
+    while (count > 0) {
+        int i = send(fd, buf, count, 0);
+        if (i < 1) return EUNKNOWN;
+        buf += i;
+        count -= i;
+    }
 
     return ESUCCESS;
 }
@@ -203,7 +219,7 @@ int closePosix(Socket ** sock) {
     return ESUCCESS;
 }
 
-NetHandler * net_setupPlatform() {
+NetHandler * netSetupPlatform() {
     NetHandler * handler = malloc(sizeof(NetHandler));
     *handler = (NetHandler) {&initializePosix, &connectPosix, &startPosix, &loopPosix, &receivePosix, &receiveTextPosix, &sendPosix, &closeConnectionPosix, &closePosix, NULL};
 

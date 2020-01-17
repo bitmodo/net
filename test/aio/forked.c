@@ -13,44 +13,43 @@
 #define PORT 8081
 #define BUFF_SIZE 1024
 
-int server() {
-    net_setup();
+static int server() {
+    netSetup();
     fprintf(stdout, "Starting server\n");
 
     // Setup the socket
-    Socket * sock = net_socket(SERVER, TCP);
+    Socket * sock = netSocket(SERVER, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create server socket\n");
-        net_cleanup();
+        netCleanup();
         return EXIT_FAILURE;
     }
 
-    net_setAddress(sock, HOST);
-    net_setPort(sock, PORT);
+    netSetAddress(sock, HOST);
+    netSetPort(sock, PORT);
     int ec;
-    if ((ec = net_start(sock)) != ESUCCESS) {
+    if ((ec = netStart(sock)) != ESUCCESS) {
         fprintf(stderr, "Failed to start server with code %d\n", ec);
-        net_cleanup();
+        netCleanup();
         return EXIT_FAILURE;
     }
 
-    fprintf(stdout, "Server: Waiting for connections on %s:%d\n", net_getAddress(sock), net_getPort(sock));
+    fprintf(stdout, "Server: Waiting for connections on %s:%d\n", netGetAddress(sock), netGetPort(sock));
     int lc;
-    while ((lc = net_loop(sock)) == ESUCCESS) {
-        fprintf(stdout, "Server: Connected to client. Waiting for message\n");
-
+    while ((lc = netLoop(sock)) == ESUCCESS) {
         bool open = true;
         while(open) {
-            char * message = net_receiveText(sock, BUFF_SIZE);
+            fprintf(stdout, "Server: Connected to client. Waiting for message\n");
+            char * message = netReceiveText(sock);
             fprintf(stdout, "Server: Received message:\n\t%s\n", message);
 
             if (strcmp(message, "close") == 0) {
                 fprintf(stdout, "Server: Closing\n");
-                net_close(&sock);
+                netClose(&sock);
                 open = false;
             } else {
                 fprintf(stdout, "Server: Sending pong\n");
-                net_send(sock, message, strlen(message));
+                netSend(sock, message, strlen(message));
             }
 
             free(message);
@@ -59,58 +58,61 @@ int server() {
 
     if (lc != ECLOSED) {
         fprintf(stderr, "Failed to run server\n");
-        net_cleanup();
+        netCleanup();
         return EXIT_FAILURE;
     }
 
     fprintf(stdout, "Finishing server\n");
-    net_cleanup();
+    netCleanup();
     return EXIT_SUCCESS;
 }
 
-void client() {
-    net_setup();
+static void client() {
+    netSetup();
     fprintf(stdout, "Starting client\n");
 
     // Setup the socket
-    Socket * sock = net_socket(CLIENT, TCP);
+    Socket * sock = netSocket(CLIENT, TCP);
     if (!sock) {
         fprintf(stderr, "Failed to create client socket\n");
-        net_cleanup();
+        netCleanup();
         exit(EXIT_FAILURE);
     }
 
-    net_setAddress(sock, HOST);
-    net_setPort(sock, PORT);
-    fprintf(stdout, "Client: Establishing connection on %s:%d\n", net_getAddress(sock), net_getPort(sock));
+    netSetAddress(sock, HOST);
+    netSetPort(sock, PORT);
+    fprintf(stdout, "Client: Establishing connection on %s:%d\n", netGetAddress(sock), netGetPort(sock));
 
     // Connect to the server
     int code;
-    if ((code = net_connect(sock)) != ESUCCESS) {
+    if ((code = netConnect(sock)) != ESUCCESS) {
         fprintf(stderr, "Client: Failed to connect with code %d\n", code);
-        net_cleanup();
+        netCleanup();
         exit(EXIT_FAILURE);
     }
 
-    char message[BUFF_SIZE * 2] = {0};
+    char message[BUFF_SIZE * 2] = "";
     memset(message, 'a', BUFF_SIZE * 2 - 1);
     fprintf(stdout, "Client: Sending message:\n\t%s\n", message);
-    net_send(sock, message, sizeof(message)/sizeof(char) - 1);
+    if (netSend(sock, message, sizeof message) != ESUCCESS) {
+        fprintf(stderr, "Client: Error sending\n");
+        exit(EXIT_FAILURE);
+    }
 
     fprintf(stdout, "Client: Receiving message\n");
-    char * received = net_receiveText(sock, BUFF_SIZE);
+    char * received = netReceiveText(sock);
     fprintf(stdout, "Client: Received:\n\t%s\n", received);
     free(received);
 
     char close[] = "close";
     fprintf(stdout, "Client: Sending close command\n");
-    net_send(sock, close, sizeof(close)/sizeof(char) - 1);
+    netSend(sock, close, sizeof(close)/sizeof(char) - 1);
 
     // Close the socket
-    net_close(&sock);
+    netClose(&sock);
     fprintf(stdout, "Finishing client\n");
 
-    net_cleanup();
+    netCleanup();
 }
 
 int main(int argc, char ** argv) {
