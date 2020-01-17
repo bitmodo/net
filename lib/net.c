@@ -3,18 +3,18 @@
 
 #include <stdlib.h>
 
-NetHandler * g_handler;
+NetHandler * gHandler;
 
 void netSetup() {
     netSetHandler(netSetupPlatform());
 }
 
 NetHandler * netGetHandler() {
-    return g_handler;
+    return gHandler;
 }
 
 void netSetHandler(NetHandler * handler) {
-    g_handler = handler;
+    gHandler = handler;
 }
 
 Socket * netSocket(int side, int type) {
@@ -52,9 +52,9 @@ void netSetAddress(Socket * sock, const char * addr) {
 const char * netGetAddress(Socket * sock) {
     if (sock) {
         return sock->address;
-    } else {
-        return NULL;
     }
+
+    return NULL;
 }
 
 void netSetAddressType(Socket * sock, int type) {
@@ -66,9 +66,9 @@ void netSetAddressType(Socket * sock, int type) {
 int netGetAddressType(Socket * sock) {
     if (sock) {
         return sock->addressType;
-    } else {
-        return -1;
     }
+
+    return -1;
 }
 
 void netSetPort(Socket * sock, unsigned port) {
@@ -80,9 +80,9 @@ void netSetPort(Socket * sock, unsigned port) {
 unsigned netGetPort(Socket * sock) {
     if (sock) {
         return sock->port;
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
 #define NET_FUNCTION(capname, name)                   \
