@@ -133,6 +133,40 @@ void test(int s, int t, int at, int gair, bool gaih, int srv, int crc, int erc) 
     free(sock);
 }
 
+void testGroup(int t, int at) {
+    test(CLIENT, t, at, 0, true, 1, 0, ESUCCESS);
+
+    test(CLIENT, t, at, EAI_BADFLAGS, true, 0, 0, EINVALID_IP);
+    test(CLIENT, t, at, EAI_FAIL, true, 0, 0, EINVALID_IP);
+    test(CLIENT, t, at, EAI_FAMILY, true, 0, 0, EINVALID_IP);
+    test(CLIENT, t, at, EAI_NONAME, true, 0, 0, EINVALID_IP);
+    test(CLIENT, t, at, EAI_SOCKTYPE, true, 0, 0, EINVALID_IP);
+    test(CLIENT, t, at, 1, true, 0, 0, EUNKNOWN);
+    
+    test(CLIENT, t, at, 0, true, -1, 0, EINVALID_IP);
+    
+    test(CLIENT, t, at, 0, true, 0, EACCES, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EADDRNOTAVAIL, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EAGAIN, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EALREADY, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EBADF, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, ECONNREFUSED, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EFAULT, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EINPROGRESS, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EINTR, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, ENETUNREACH, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, ENOTSOCK, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EPROTOTYPE, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, ETIMEDOUT, EINVALID_IP);
+    
+    test(CLIENT, t, at, 0, true, 0, EADDRINUSE, EINVALID_IP);
+    test(CLIENT, t, at, 0, true, 0, EISCONN, EINVALID_IP);
+    
+    test(CLIENT, t, at, 0, true, 0, EAFNOSUPPORT, EINVALID_IP);
+    
+    test(CLIENT, t, at, 0, true, 0, -1, EINVALID_IP);
+}
+
 int main() {
     Socket * sock;
     SocketData * data;
@@ -162,37 +196,13 @@ int main() {
     free(data);
     free(sock);
     
-    test(CLIENT, TCP, UNSPEC, 0, true, 1, 0, ESUCCESS);
-
-    test(CLIENT, TCP, UNSPEC, EAI_BADFLAGS, true, 0, 0, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, EAI_FAIL, true, 0, 0, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, EAI_FAMILY, true, 0, 0, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, EAI_NONAME, true, 0, 0, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, EAI_SOCKTYPE, true, 0, 0, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 1, true, 0, 0, EUNKNOWN);
+    testGroup(TCP, UNSPEC);
+    testGroup(TCP, IPv4);
+    testGroup(TCP, IPv4);
     
-    test(CLIENT, TCP, UNSPEC, 0, true, -1, 0, EINVALID_IP);
-    
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EACCES, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EADDRNOTAVAIL, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EAGAIN, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EALREADY, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EBADF, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, ECONNREFUSED, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EFAULT, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EINPROGRESS, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EINTR, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, ENETUNREACH, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, ENOTSOCK, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EPROTOTYPE, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, ETIMEDOUT, EINVALID_IP);
-    
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EADDRINUSE, EINVALID_IP);
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EISCONN, EINVALID_IP);
-    
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, EAFNOSUPPORT, EINVALID_IP);
-    
-    test(CLIENT, TCP, UNSPEC, 0, true, 0, -1, EINVALID_IP);
+    testGroup(UDP, UNSPEC);
+    testGroup(UDP, IPv4);
+    testGroup(UDP, IPv4);
 
     netCleanup();
     exit(EXIT_SUCCESS);
