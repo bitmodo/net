@@ -45,3 +45,6 @@ test('send', send_e)
 
 close_connection_e = executable('test-close-connection', 'close_connection.c', dependencies: [net_dep])
 test('close-connection', close_connection_e)
+
+close_e = executable('test-close', 'close.c', dependencies: [net_dep])
+test('close', close_e)
