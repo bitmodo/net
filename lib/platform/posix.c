@@ -128,7 +128,7 @@ int startPosix(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
-    return prepareSocket(&connectFunction, sock);
+    return prepareSocket(&startFunction, sock);
 }
 
 int loopPosix(Socket * sock) {
