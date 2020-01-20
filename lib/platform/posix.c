@@ -163,11 +163,8 @@ char * receiveTextPosix(Socket * sock) {
 
     while (1) {
         int events = poll(pfds, 1, -1);
-        if (events <= 0) {
-            return NULL;
-        }
-
-        if (!(pfds[0].revents & POLLIN)) {
+        if (events <= 0 || !(pfds[0].revents & POLLIN)) {
+            free(result);
             return NULL;
         }
 
@@ -185,7 +182,12 @@ char * receiveTextPosix(Socket * sock) {
         result = realloc(result, length);
         while (len > 0) {
             int i = recv(pfds[0].fd, result + idx, len, 0);
-            if (i < 0) return NULL;
+
+            if (i < 0) {
+                free(result);
+                return NULL;
+            }
+
             idx += i;
             len -= i;
         }
@@ -196,10 +198,11 @@ int sendPosix(Socket * sock, const void * buf, int count) {
     if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
 
     int fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
+    int idx = 0;
     while (count > 0) {
-        int i = send(fd, buf, count, 0);
+        int i = send(fd, buf + idx, count, 0);
         if (i < 1) return EUNKNOWN;
-        buf += i;
+        idx += i;
         count -= i;
     }
 
