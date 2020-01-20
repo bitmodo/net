@@ -9,3 +9,6 @@ test('cleanup', cleanup_e)
 
 set_address_e = executable('test-set-address', 'set_address.c', dependencies: [net_dep])
 test('set-address', set_address_e)
+
+get_address_e = executable('test-get-address', 'get_address.c', dependencies: [net_dep])
+test('get-address', get_address_e)
