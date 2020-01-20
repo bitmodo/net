@@ -1,9 +1,9 @@
 # Cod Networking
 [![License](https://img.shields.io/github/license/codmf/net)](https://github.com/codmf/net/blob/master/LICENSE)
-[![Releases](https://img.shields.io/github/v/release/codmf/net?include_prereleases&sort=semver)](https://github.com/codmf/net/releases)
-[![Build Status](https://img.shields.io/travis/codmf/net)](https://travis-ci.org/codmf/net)
-[![Code Coverage](https://img.shields.io/codecov/c/gh/codmf/net)](https://codecov.io/gh/codmf/net)
-[![Codacy Grade](https://img.shields.io/codacy/grade/ad77fe33ca154127bc66980b742db5e0)](https://app.codacy.com/gh/codmf/net/dashboard)
+[![Releases](https://img.shields.io/github/v/release/codmf/net?include_prereleases&sort=semver&logo=github&logoColor=white)](https://github.com/codmf/net/releases)
+[![Build Status](https://img.shields.io/travis/codmf/net?logo=travis-ci&logoColor=white)](https://travis-ci.org/codmf/net)
+[![Code Coverage](https://img.shields.io/codecov/c/gh/codmf/net?logo=codecov&logoColor=white)](https://codecov.io/gh/codmf/net)
+[![Codacy Grade](https://img.shields.io/codacy/grade/ad77fe33ca154127bc66980b742db5e0?logo=codacy&logoColor=white)](https://app.codacy.com/gh/codmf/net/dashboard)
 
 The Cod networking layer is a simple layer that helps us interface with networking.
 It provides a simple and easy API which can be implemented to support different environments.
