@@ -171,7 +171,12 @@ char * receiveTextPosix(Socket * sock) {
         int len = 0;
         ioctl(pfds[0].fd, FIONREAD, &len);
         if (len <= 0) {
-            result = realloc(result, length+1);
+            char * newResult = realloc(result, length+1);
+            if (newResult == NULL) {
+                return result;
+            }
+
+            result = newResult;
             result[length] = '\0';
             
             return result;
@@ -179,7 +184,13 @@ char * receiveTextPosix(Socket * sock) {
 
         int idx = length;
         length += len;
-        result = realloc(result, length);
+
+        char * newResult = realloc(result, length);
+        if (newResult == NULL) {
+            return NULL;
+        }
+
+        result = newResult;
         while (len > 0) {
             int i = recv(pfds[0].fd, result + idx, len, 0);
 
