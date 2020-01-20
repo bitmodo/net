@@ -68,7 +68,7 @@ int netGetAddressType(Socket * sock) {
         return sock->addressType;
     }
 
-    return -1;
+    return UNSPEC;
 }
 
 void netSetPort(Socket * sock, unsigned port) {

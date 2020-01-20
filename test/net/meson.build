@@ -12,3 +12,9 @@ test('set-address', set_address_e)
 
 get_address_e = executable('test-get-address', 'get_address.c', dependencies: [net_dep])
 test('get-address', get_address_e)
+
+set_address_type_e = executable('test-set-address-type', 'set_address_type.c', dependencies: [net_dep])
+test('set-address-type', set_address_type_e)
+
+get_address_type_e = executable('test-get-address-type', 'get_address_type.c', dependencies: [net_dep])
+test('get-address-type', get_address_type_e)
