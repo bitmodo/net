@@ -12,6 +12,7 @@ enum EErrors {
     EUNKNOWN, /* An unknown error */
     EUNSUPPORTED, /* Something was requested that is not supported */
     ENULL_POINTER, /* A pointer was null */
+    EINVALID_STATE, /* The current state is invalid */
 
     EERRORS_END /* Utility for the end of this enum */
 };
@@ -21,7 +22,7 @@ enum ENetError {
     ENETERROR_START = EERRORS_END, /* Utility for the beginning of this enum */
 
     EINCORRECT_SIDE, /* A method was called on the wrong side */
-    EIN_USE, /* An address is already in use */
+    EIN_USE, /* An address or connection is already in use */
     EINVALID_IP, /* The specified address is invalid */
     ECLOSED, /* Not actually an error. The connection closed */
 

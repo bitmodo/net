@@ -32,12 +32,12 @@ int socketTypeToNetworkType(int type) {
 }
 
 int addressTypeToFamilyType(int type) {
-    if (type == IPv6) {
-        return AF_INET6;
-    }
-
     if (type == IPv4) {
         return AF_INET;
+    }
+
+    if (type == IPv6) {
+        return AF_INET6;
     }
 
     return AF_UNSPEC;
@@ -56,13 +56,22 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     hints.ai_family = addressTypeToFamilyType(sock->addressType); // Allow IPv4 or IPv6
     hints.ai_socktype = socketTypeToNetworkType(sock->type);
     hints.ai_flags = (sock->side == SERVER ? AI_PASSIVE : 0) | AI_V4MAPPED | AI_ADDRCONFIG; // For wildcard IP address
-    hints.ai_protocol = sock->type == TCP ? IPPROTO_TCP : sock->type == UDP ? IPPROTO_UDP : 0; // Any protocol
+    hints.ai_protocol = sock->type == TCP ? IPPROTO_TCP : sock->type == UDP ? IPPROTO_UDP : 0; // Use correct protocol
 
     struct addrinfo * info;
     int err = getaddrinfo(sock->address, NULL, &hints, &info);
     if (err != 0) {
-        // fprintf(stderr, "Error: %s\n", gai_strerror(err));
-        return err;
+        freeaddrinfo(info);
+
+        switch (err) {
+            case EAI_BADFLAGS:
+            case EAI_FAIL:
+            case EAI_FAMILY:
+            case EAI_NONAME:
+            case EAI_SOCKTYPE:
+                return EINVALID_IP;
+            default: return EUNKNOWN;
+        }
     }
 
     int sfd;
@@ -70,13 +79,13 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     for (rp = info; rp != NULL; rp = rp->ai_next) {
         sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 
+        if (sfd < 0) continue;
+
         if (rp->ai_family == AF_INET) {
             ((struct sockaddr_in *) rp->ai_addr)->sin_port = htons(sock->port);
         } else if (rp->ai_family == AF_INET6) {
             ((struct sockaddr_in6 *) rp->ai_addr)->sin6_port = htons(sock->port);
         }
-
-        if (sfd < 0) continue;
         
         if (function(sfd, rp) != -1) break;
         
@@ -84,14 +93,15 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     }
 
     if (rp == NULL) {
-        return -1;
+        freeaddrinfo(info);
+        return EINVALID_IP;
     }
 
     freeaddrinfo(info);
 
     sock->data->fd = sfd;
 
-    return 0;
+    return ESUCCESS;
 }
 
 int connectFunction(int sfd, struct addrinfo *info) {
@@ -99,13 +109,11 @@ int connectFunction(int sfd, struct addrinfo *info) {
 }
 
 int connectPosix(Socket * sock) {
-    if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
-    if (sock->side == SERVER) return EINCORRECT_SIDE;
+    if (!sock || !(sock->data)) return ENULL_POINTER;
+    if (sock->side != CLIENT) return EINCORRECT_SIDE;
+    if (sock->data->conn != -1) return EIN_USE;
 
-    int code;
-    if ((code = prepareSocket(&connectFunction, sock)) == -1) return code;
-
-    return ESUCCESS;
+    return prepareSocket(&connectFunction, sock);
 }
 
 int startFunction(int sfd, struct addrinfo *info) {
@@ -120,9 +128,7 @@ int startPosix(Socket * sock) {
     if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
 
-    if (prepareSocket(&startFunction, sock) == -1) return ENULL_POINTER;
-
-    return ESUCCESS;
+    return prepareSocket(&connectFunction, sock);
 }
 
 int loopPosix(Socket * sock) {
