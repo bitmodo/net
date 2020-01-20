@@ -41,9 +41,12 @@ int getaddrinfo (const char *__restrict name,
     if (type == TCP) {
         assert(req->ai_socktype == SOCK_STREAM && "TCP socket type did not map to stream");
         assert(req->ai_protocol == IPPROTO_TCP && "TCP socket type did not map to correct protocol");
-    } else {
+    } else if (type == UDP) {
         assert(req->ai_socktype == SOCK_DGRAM && "UDP socket type did not map to datagram");
         assert(req->ai_protocol == IPPROTO_UDP && "UDP socket type did not map to correct protocol");
+    } else {
+        assert(req->ai_socktype == SOCK_STREAM && "Unknown socket type did not map to stream");
+        assert(req->ai_protocol == 0 && "Unknown socket type did not map to zero");
     }
 
     if (side == SERVER) {
@@ -203,6 +206,10 @@ int main() {
     testGroup(UDP, UNSPEC);
     testGroup(UDP, IPv4);
     testGroup(UDP, IPv6);
+    
+    testGroup(-1, UNSPEC);
+    testGroup(-1, IPv4);
+    testGroup(-1, IPv6);
 
     netCleanup();
     exit(EXIT_SUCCESS);
