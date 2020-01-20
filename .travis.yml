@@ -18,4 +18,5 @@ script:
 - ninja test
 
 after_success:
+- ninja coverage
 - curl -s https://codecov.io/bash | sed 's/-execdir $gcov_exe/-exec $gcov_exe/' | bash -s -- -g '*/example/*' -g '*/test/*'
