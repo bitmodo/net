@@ -209,11 +209,10 @@ int sendPosix(Socket * sock, const void * buf, int count) {
     if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
 
     int fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
-    int idx = 0;
     while (count > 0) {
-        int i = send(fd, buf + idx, count, 0);
+        int i = send(fd, buf, count, 0);
         if (i < 1) return EUNKNOWN;
-        idx += i;
+        buf += i;
         count -= i;
     }
 
