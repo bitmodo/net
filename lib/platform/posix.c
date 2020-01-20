@@ -209,13 +209,11 @@ int closeConnectionPosix(Socket * sock) {
 }
 
 int closePosix(Socket ** sock) {
-    if (!sock || !((*sock)->data)) return ENULL_POINTER;
+    if (!sock || !(*sock) || !((*sock)->data)) return ENULL_POINTER;
 
     if ((*sock)->data->fd != -1) close((*sock)->data->fd);
 
     free((*sock)->data);
-    free(*sock);
-    *sock = NULL;
     return ESUCCESS;
 }
 

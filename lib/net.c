@@ -154,5 +154,13 @@ int netClose(Socket ** sock) {
         return ENULL_POINTER;
     }
 
-    return handler->close(sock);
+    int ec;
+    if ((ec = handler->close(sock)) != ESUCCESS) return ec;
+
+    if (*sock) {
+        free(*sock);
+        *sock = NULL;
+    }
+
+    return ESUCCESS;
 }
