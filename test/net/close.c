@@ -8,13 +8,19 @@
 extern NetHandler * gHandler;
 
 #define CLOSE_RETURN ESUCCESS
+#define CLOSE_ERROR ENULL_POINTER
 
 bool close = false;
 bool hasSocket = false;
+bool error = false;
 
 int customClose(Socket ** sock) {
     close = true;
     hasSocket = *sock != NULL;
+
+    if (error) {
+        return CLOSE_ERROR;
+    }
 
     return CLOSE_RETURN;
 }
@@ -34,6 +40,7 @@ int main() {
 
     close = false;
     hasSocket = false;
+    error = false;
     gHandler = malloc(sizeof(NetHandler));
     *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
     sock = NULL;
@@ -44,10 +51,23 @@ int main() {
 
     close = false;
     hasSocket = false;
+    error = false;
     gHandler = malloc(sizeof(NetHandler));
     *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
     sock = malloc(sizeof(Socket));
     assert(netClose(&sock) == CLOSE_RETURN && "Close did not return the correct return value");
+    assert(close && "Close did not set the expected variable");
+    assert(hasSocket && "Has socket was set to false with a socket");
+    free(gHandler);
+    free(sock);
+
+    close = false;
+    hasSocket = false;
+    error = true;
+    gHandler = malloc(sizeof(NetHandler));
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
+    sock = malloc(sizeof(Socket));
+    assert(netClose(&sock) == CLOSE_ERROR && "Close did not return the correct return value");
     assert(close && "Close did not set the expected variable");
     assert(hasSocket && "Has socket was set to false with a socket");
     free(gHandler);
