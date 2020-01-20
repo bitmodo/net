@@ -9,11 +9,11 @@ int main() {
     Socket * sock;
 
     sock = NULL;
-    assert(netGetPort(sock) == 0 && "Null socket did not return zero as the port");
+    assert(netGetPort(sock) == DEFAULT_PORT && "Null socket did not return zero as the port");
 
     sock = malloc(sizeof(Socket));
-    *sock = (Socket) {0, 0, NULL, 0, 0, NULL};
-    assert(netGetPort(sock) == 0 && "Default port did not return zero");
+    *sock = (Socket) {0, 0, NULL, 0, DEFAULT_PORT, NULL};
+    assert(netGetPort(sock) == DEFAULT_PORT && "Default port did not return zero");
     free(sock);
 
     sock = malloc(sizeof(Socket));

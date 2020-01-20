@@ -7,6 +7,10 @@ extern "C" {
 
 #include "util.h"
 
+#ifndef DEFAULT_PORT
+#define DEFAULT_PORT 0
+#endif
+
 /** The side of a connection */
 enum ENetSide {
     CLIENT, /* The client side of a connection */

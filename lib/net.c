@@ -25,7 +25,7 @@ Socket * netSocket(int side, int type) {
     }
 
     Socket * result = malloc(sizeof(Socket));
-    *result = (Socket) {side, type, NULL, UNSPEC, 0, data};
+    *result = (Socket) {side, type, NULL, UNSPEC, DEFAULT_PORT, data};
 
     return result;
 }
@@ -82,7 +82,7 @@ unsigned netGetPort(Socket * sock) {
         return sock->port;
     }
 
-    return 0;
+    return DEFAULT_PORT;
 }
 
 int netConnect(Socket * sock) {
