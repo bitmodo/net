@@ -10,7 +10,10 @@
 #define HOST "localhost"
 #define PORT 8080
 
-void * server(void * data) {
+#define BUFFER_SIZE 1024
+#define MESSAGE_COUNT 5
+
+void * server() {
     fprintf(stdout, "Starting server\n");
 
     // Setup the socket
@@ -33,11 +36,17 @@ void * server(void * data) {
     while ((lc = netLoop(sock)) == ESUCCESS) {
         fprintf(stdout, "Server: Received a connection. Waiting for data\n");
 
-        for (int i = 0; i < 5; i++) {
-            char buf[1024] = {0};
+        for (int i = 0; i < MESSAGE_COUNT; i++) {
+            char buf[BUFFER_SIZE] = {0};
 
             // Receive data from the connection
-            int readSize = netReceive(sock, buf, sizeof(buf)-1);
+            int readSize;
+            int readError;
+            if ((readError = netReceive(sock, buf, sizeof(buf)-1, &readSize)) != ESUCCESS) {
+                fprintf(stderr, "Server: Error reading from the socket: %d\n", readError);
+                continue;
+            }
+            
             if (readSize == -1) {
                 fprintf(stderr, "Server: Error reading from the socket\n");
             } else if (readSize == 0) {
@@ -72,7 +81,7 @@ void * server(void * data) {
     return NULL;
 }
 
-void * client(void * data) {
+void * client() {
     fprintf(stdout, "Starting client\n");
 
     // Setup the socket
@@ -99,9 +108,10 @@ void * client(void * data) {
     netSend(sock, message, (int) sizeof(message));
 
     // Receive a pong message
-    char buf[1024] = {0};
-    int receiveSize = netReceive(sock, buf, sizeof(buf)-1);
-    if(receiveSize == -1) {
+    char buf[BUFFER_SIZE] = {0};
+    int receiveSize;
+    int receiveError = netReceive(sock, buf, sizeof(buf)-1, &receiveSize);
+    if (receiveSize == -1 || receiveError != ESUCCESS) {
         fprintf(stderr, "Client: Error receiving\n");
     } else if (receiveSize == 0) {
         fprintf(stdout, "Client: Empty receive\n");
@@ -120,10 +130,11 @@ void * client(void * data) {
     return NULL;
 }
 
-int main(int argc, char ** argv) {
+int main() {
     netSetup();
 
-    pthread_t tClient, tServer;
+    pthread_t tClient;
+    pthread_t tServer;
     // Start the server then the client
     pthread_create(&tServer, NULL, &server, NULL);
     sleep(1);

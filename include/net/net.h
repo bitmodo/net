@@ -49,7 +49,7 @@ typedef struct NetHandler {
     int (* connect)(Socket *); /* Client. Connect to the specified server and prepare the environment to use the connection */
     int (* start)(Socket *); /* Server. Initialize a socket and prepare it for incoming connections */
     int (* loop)(Socket *); /* Server. Accept a connection and prepare the environment to use the connection */
-    int (* receive)(Socket *, void *, int); /* Receive data from the currently opened connection. Works on client and server */
+    int (* receive)(Socket *, void *, int, int *); /* Receive data from the currently opened connection. Works on client and server */
     char * (* receiveText)(Socket *); /* Receive a C string from the socket. Int parameter is buffer size */
     int (* send)(Socket *, const void *, int); /* Send data on the currently opened connection. Works on client and server */
     int (* closeConnection)(Socket *); /* Server. Close the currently opened connection and free memory relating to it */
@@ -114,7 +114,7 @@ NET_EXPORT int netLoop(Socket *);
 
 /** Recieve data from the socket. Put the data recieved in the specified port up to the specified
     count. The number of bytes actually read will be returned and 0 if the connection closed. */
-NET_EXPORT int netReceive(Socket *, void *, int);
+NET_EXPORT int netReceive(Socket *, void *, int, int *);
 
 /** Receive some text from the socket. The integer argument is used to specify the buffer size.
     This will receive messages from the socket and append them to an output buffer until a null

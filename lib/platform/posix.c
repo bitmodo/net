@@ -14,6 +14,10 @@
 #include <string.h>
 #include <errno.h>
 
+#ifndef NET_BUFFER_COUNT
+#define NET_BUFFER_COUNT 10
+#endif
+
 struct SocketData {
     int fd;
     int conn;
@@ -22,22 +26,24 @@ struct SocketData {
 int socketTypeToNetworkType(int type) {
     if (type == UDP) {
         return SOCK_DGRAM;
-    } else {
-        return SOCK_STREAM;
     }
+
+    return SOCK_STREAM;
 }
 
 int addressTypeToFamilyType(int type) {
     if (type == IPv6) {
         return AF_INET6;
-    } else if (type == IPv4) {
-        return AF_INET;
-    } else {
-        return AF_UNSPEC;
     }
+
+    if (type == IPv4) {
+        return AF_INET;
+    }
+
+    return AF_UNSPEC;
 }
 
-SocketData * initializePosix(int side, int type) {
+SocketData * initializePosix() {
     SocketData * data = malloc(sizeof(SocketData));
     *data = (SocketData) {-1, -1};
 
@@ -70,11 +76,9 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
             ((struct sockaddr_in6 *) rp->ai_addr)->sin6_port = htons(sock->port);
         }
 
-        if (sfd < 0)
-            continue;
+        if (sfd < 0) continue;
         
-        if (function(sfd, rp) != -1)
-            break;
+        if (function(sfd, rp) != -1) break;
         
         close(sfd);
     }
@@ -107,7 +111,7 @@ int connectPosix(Socket * sock) {
 int startFunction(int sfd, struct addrinfo *info) {
     if (bind(sfd, info->ai_addr, info->ai_addrlen) == -1) return -1;
 
-    if (listen(sfd, 10) == -1) return -1;
+    if (listen(sfd, NET_BUFFER_COUNT) == -1) return -1;
 
     return 0;
 }
@@ -133,14 +137,12 @@ int loopPosix(Socket * sock) {
     return ESUCCESS;
 }
 
-// TODO: Fix the error codes
-int receivePosix(Socket * sock, void * buf, int count) {
+int receivePosix(Socket * sock, void * buf, int count, int * size) {
     if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
 
-    int size;
-    if ((size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0) return EUNKNOWN;
+    if ((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0) return EUNKNOWN;
 
-    return size;
+    return ESUCCESS;
 }
 
 char * receiveTextPosix(Socket * sock) {

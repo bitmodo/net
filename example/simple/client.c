@@ -6,14 +6,16 @@
 #include <stdbool.h>
 #include <string.h>
 
-int main(int argc, char ** argv) {
+#define HOST_SIZE 100
+
+int main() {
     netSetup();
 
     bool run = true;
     while (run) {
         fprintf(stdout, "Enter a URL: ");
 
-        char host[100];
+        char host[HOST_SIZE];
         unsigned port;
         scanf("%99s %u", host, &port);
 

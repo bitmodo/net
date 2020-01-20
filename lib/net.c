@@ -112,13 +112,13 @@ int netLoop(Socket * sock) {
     return handler->loop(sock);
 }
 
-int netReceive(Socket * sock, void * buf, int count) {
+int netReceive(Socket * sock, void * buf, int count, int * size) {
     NetHandler * handler = netGetHandler();
     if (!handler || !(handler->receive)) {
         return ENULL_POINTER;
     }
 
-    return handler->receive(sock, buf, count);
+    return handler->receive(sock, buf, count, size);
 }
 
 char * netReceiveText(Socket * sock) {
