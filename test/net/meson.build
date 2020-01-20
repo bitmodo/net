@@ -30,3 +30,6 @@ test('connect', connect_e)
 
 start_e = executable('test-start', 'start.c', dependencies: [net_dep])
 test('start', start_e)
+
+loop_e = executable('test-loop', 'loop.c', dependencies: [net_dep])
+test('loop', loop_e)
