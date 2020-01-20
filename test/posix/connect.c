@@ -198,11 +198,11 @@ int main() {
     
     testGroup(TCP, UNSPEC);
     testGroup(TCP, IPv4);
-    testGroup(TCP, IPv4);
+    testGroup(TCP, IPv6);
     
     testGroup(UDP, UNSPEC);
     testGroup(UDP, IPv4);
-    testGroup(UDP, IPv4);
+    testGroup(UDP, IPv6);
 
     netCleanup();
     exit(EXIT_SUCCESS);
