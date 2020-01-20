@@ -33,3 +33,6 @@ test('start', start_e)
 
 loop_e = executable('test-loop', 'loop.c', dependencies: [net_dep])
 test('loop', loop_e)
+
+receive_e = executable('test-receive', 'receive.c', dependencies: [net_dep])
+test('receive', receive_e)
