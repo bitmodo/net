@@ -12,10 +12,9 @@ install:
 - pip install meson ninja
 
 script:
-- mkdir build && cd build
-- meson -Db_coverage=true ..
-- ninja
-- ninja test
+- meson -Db_coverage=true build
+- ninja -C build
+- ninja -C build test
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
