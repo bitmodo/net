@@ -24,3 +24,6 @@ test('set-port', set_port_e)
 
 get_port_e = executable('test-get-port', 'get_port.c', dependencies: [net_dep])
 test('get-port', get_port_e)
+
+connect_e = executable('test-connect', 'connect.c', dependencies: [net_dep])
+test('connect', connect_e)
