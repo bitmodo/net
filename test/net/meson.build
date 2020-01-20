@@ -18,3 +18,9 @@ test('set-address-type', set_address_type_e)
 
 get_address_type_e = executable('test-get-address-type', 'get_address_type.c', dependencies: [net_dep])
 test('get-address-type', get_address_type_e)
+
+set_port_e = executable('test-set-port', 'set_port.c', dependencies: [net_dep])
+test('set-port', set_port_e)
+
+get_port_e = executable('test-get-port', 'get_port.c', dependencies: [net_dep])
+test('get-port', get_port_e)
