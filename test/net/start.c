@@ -27,7 +27,7 @@ int main() {
     assert(netStart(sock) == ENULL_POINTER && "Start with a null handler and socket did not return a null pointer error");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netStart(sock) == ENULL_POINTER && "Start with a null socket and function did not return a null pointer error");
     free(gHandler);
@@ -35,7 +35,7 @@ int main() {
     start = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, &customStart, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, &customStart, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netStart(sock) == START_RETURN && "Start did not return the correct return value");
     assert(start && "Start did not set the expected variable");
@@ -45,7 +45,7 @@ int main() {
     start = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, &customStart, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, &customStart, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = malloc(sizeof(Socket));
     assert(netStart(sock) == START_RETURN && "Start did not return the correct return value");
     assert(start && "Start did not set the expected variable");

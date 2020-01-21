@@ -7,6 +7,7 @@
 #include <string.h>
 
 #define HOST_SIZE 100
+#define BUF_SIZE 4096
 
 int main() {
     netSetup();
@@ -42,9 +43,13 @@ int main() {
         char request[] = "GET / HTTP/1.0\r\n\r\n";
         netSend(sock, request, sizeof(request)/sizeof(char));
 
-        char * response = netReceiveText(sock);
-        fprintf(stdout, "Received message:\n\n%s\n\n", response);
-        free(response);
+        char buf[BUF_SIZE];
+        fprintf(stdout, "Received message:\n\n");
+        int len;
+        while (netReceive(sock, buf, BUF_SIZE, &len) == ESUCCESS && len >= BUF_SIZE) {
+            fprintf(stdout, "%.*s", len, buf);
+        }
+        fprintf(stdout, "%.*s\n\n", len, buf);
 
         netClose(&sock);
     }

@@ -59,13 +59,13 @@ int main() {
     checkSocket(NULL, SERVER, TCP, false);
     checkSocket(NULL, SERVER, UDP, false);
 
-    NetHandler nullHandler = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    NetHandler nullHandler = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     checkSocket(&nullHandler, CLIENT, TCP, false);
     checkSocket(&nullHandler, CLIENT, UDP, false);
     checkSocket(&nullHandler, SERVER, TCP, false);
     checkSocket(&nullHandler, SERVER, UDP, false);
 
-    NetHandler handler = {&customInitialize, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    NetHandler handler = {&customInitialize, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     checkSocket(&handler, CLIENT, TCP, false);
     checkSocket(&handler, CLIENT, UDP, false);
     checkSocket(&handler, SERVER, TCP, false);

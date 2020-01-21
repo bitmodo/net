@@ -40,9 +40,6 @@ test('loop', loop_e)
 receive_e = executable('test-receive', 'receive.c', dependencies: [net_dep])
 test('receive', receive_e)
 
-receive_text_e = executable('test-receive-text', 'receive_text.c', dependencies: [net_dep])
-test('receive-text', receive_text_e)
-
 send_e = executable('test-send', 'send.c', dependencies: [net_dep])
 test('send', send_e)
 

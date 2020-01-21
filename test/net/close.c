@@ -33,7 +33,7 @@ int main() {
     assert(netClose(&sock) == ENULL_POINTER && "Close with a null handler and socket did not return a null pointer error");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netClose(&sock) == ENULL_POINTER && "Close with a null socket and function did not return a null pointer error");
     free(gHandler);
@@ -42,7 +42,7 @@ int main() {
     hasSocket = false;
     error = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
     sock = NULL;
     assert(netClose(&sock) == CLOSE_RETURN && "Close did not return the correct return value");
     assert(close && "Close did not set the expected variable");
@@ -53,7 +53,7 @@ int main() {
     hasSocket = false;
     error = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
     sock = malloc(sizeof(Socket));
     assert(netClose(&sock) == CLOSE_RETURN && "Close did not return the correct return value");
     assert(close && "Close did not set the expected variable");
@@ -65,7 +65,7 @@ int main() {
     hasSocket = false;
     error = true;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customClose, NULL};
     sock = malloc(sizeof(Socket));
     assert(netClose(&sock) == CLOSE_ERROR && "Close did not return the correct return value");
     assert(close && "Close did not set the expected variable");

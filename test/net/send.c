@@ -27,7 +27,7 @@ int main() {
     assert(netSend(sock, NULL, 0) == ENULL_POINTER && "Send with a null handler and socket did not return a null pointer error");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netSend(sock, NULL, 0) == ENULL_POINTER && "Send with a null socket and function did not return a null pointer error");
     free(gHandler);
@@ -35,7 +35,7 @@ int main() {
     send = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, &customSend, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, &customSend, NULL, NULL, NULL};
     sock = NULL;
     assert(netSend(sock, NULL, 0) == SEND_RETURN && "Send did not return the correct return value");
     assert(send && "Send did not set the expected variable");
@@ -45,7 +45,7 @@ int main() {
     send = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, &customSend, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, &customSend, NULL, NULL, NULL};
     sock = malloc(sizeof(Socket));
     assert(netSend(sock, NULL, 0) == SEND_RETURN && "Send did not return the correct return value");
     assert(send && "Send did not set the expected variable");

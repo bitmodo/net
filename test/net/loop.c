@@ -27,7 +27,7 @@ int main() {
     assert(netLoop(sock) == ENULL_POINTER && "Loop with a null handler and socket did not return a null pointer error");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netLoop(sock) == ENULL_POINTER && "Loop with a null socket and function did not return a null pointer error");
     free(gHandler);
@@ -35,7 +35,7 @@ int main() {
     loop = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, &customLoop, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, &customLoop, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netLoop(sock) == LOOP_RETURN && "Loop did not return the correct return value");
     assert(loop && "Loop did not set the expected variable");
@@ -45,7 +45,7 @@ int main() {
     loop = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, &customLoop, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, &customLoop, NULL, NULL, NULL, NULL, NULL};
     sock = malloc(sizeof(Socket));
     assert(netLoop(sock) == LOOP_RETURN && "Loop did not return the correct return value");
     assert(loop && "Loop did not set the expected variable");

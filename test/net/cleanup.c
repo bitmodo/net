@@ -18,12 +18,12 @@ int main() {
     assert(gHandler == NULL && "Handler was not null after cleanup");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     netCleanup();
     assert(gHandler == NULL && "Handler was not null after setting it then cleanup");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customCleanup};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customCleanup};
     netCleanup();
     assert(gHandler == NULL && "Handler was not null after setting it then cleanup");
     assert(cleaned == true && "Cleanup function was not called whenever cleaning up");

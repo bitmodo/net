@@ -54,8 +54,8 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = addressTypeToFamilyType(sock->addressType); // Allow IPv4 or IPv6
-    hints.ai_socktype = socketTypeToNetworkType(sock->type);
-    hints.ai_flags = (sock->side == SERVER ? AI_PASSIVE : 0) | AI_V4MAPPED | AI_ADDRCONFIG; // For wildcard IP address
+    hints.ai_socktype = socketTypeToNetworkType(sock->type); // Use correct socket type
+    hints.ai_flags = (sock->side == SERVER ? AI_PASSIVE : 0) | AI_V4MAPPED | AI_ADDRCONFIG; // Set necessary flags
     hints.ai_protocol = sock->type == TCP ? IPPROTO_TCP : sock->type == UDP ? IPPROTO_UDP : 0; // Use correct protocol
 
     struct addrinfo * info;
@@ -125,15 +125,17 @@ int startFunction(int sfd, struct addrinfo *info) {
 }
 
 int startPosix(Socket * sock) {
-    if (!sock || !(sock->data) || sock->data->conn != -1) return ENULL_POINTER;
+    if (!sock || !(sock->data)) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
+    if (sock->data->conn != -1) return EIN_USE;
 
     return prepareSocket(&startFunction, sock);
 }
 
 int loopPosix(Socket * sock) {
-    if (!sock || !(sock->data) || sock->data->conn != -1 || sock->data->fd == -1) return ECLOSED;
+    if (!sock || !(sock->data)) return ECLOSED;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
+    if (sock->data->conn != -1 || sock->data->fd == -1) return EINVALID_STATE;
 
     int fd;
     if ((fd = accept(sock->data->fd, NULL, 0)) < 0) return EUNKNOWN;
@@ -144,69 +146,17 @@ int loopPosix(Socket * sock) {
 }
 
 int receivePosix(Socket * sock, void * buf, int count, int * size) {
-    if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
+    if (!sock || !(sock->data)) return ENULL_POINTER;
+    if (sock->side == SERVER && sock->data->conn == -1) return EINVALID_STATE;
 
     if ((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0) return EUNKNOWN;
 
     return ESUCCESS;
 }
 
-char * receiveTextPosix(Socket * sock) {
-    if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return NULL;
-
-    struct pollfd pfds[1];
-    pfds[0].fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
-    pfds[0].events = POLLIN;
-
-    char * result = malloc(sizeof(char));
-    int length = 0;
-
-    while (1) {
-        int events = poll(pfds, 1, -1);
-        if (events <= 0 || !(pfds[0].revents & POLLIN)) {
-            free(result);
-            return NULL;
-        }
-
-        int len = 0;
-        ioctl(pfds[0].fd, FIONREAD, &len);
-        if (len <= 0) {
-            char * newResult = realloc(result, length+1);
-            if (newResult == NULL) {
-                return result;
-            }
-
-            result = newResult;
-            result[length] = '\0';
-            
-            return result;
-        }
-
-        int idx = length;
-        length += len;
-
-        char * newResult = realloc(result, length);
-        if (newResult == NULL) {
-            return NULL;
-        }
-
-        result = newResult;
-        while (len > 0) {
-            int i = recv(pfds[0].fd, result + idx, len, 0);
-
-            if (i < 0) {
-                free(result);
-                return NULL;
-            }
-
-            idx += i;
-            len -= i;
-        }
-    }
-}
-
 int sendPosix(Socket * sock, const void * buf, int count) {
-    if (!sock || !(sock->data) || (sock->side == SERVER && sock->data->conn == -1)) return ENULL_POINTER;
+    if (!sock || !(sock->data)) return ENULL_POINTER;
+    if (sock->side == SERVER && sock->data->conn == -1) return EINVALID_STATE;
 
     int fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
     while (count > 0) {
@@ -220,8 +170,9 @@ int sendPosix(Socket * sock, const void * buf, int count) {
 }
 
 int closeConnectionPosix(Socket * sock) {
-    if (!sock || !(sock->data) || sock->data->conn == -1) return ENULL_POINTER;
+    if (!sock || !(sock->data)) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
+    if (sock->data->conn == -1) return EINVALID_STATE;
 
     close(sock->data->conn);
     sock->data->conn = -1;
@@ -240,7 +191,7 @@ int closePosix(Socket ** sock) {
 
 NetHandler * netSetupPlatform() {
     NetHandler * handler = malloc(sizeof(NetHandler));
-    *handler = (NetHandler) {&initializePosix, &connectPosix, &startPosix, &loopPosix, &receivePosix, &receiveTextPosix, &sendPosix, &closeConnectionPosix, &closePosix, NULL};
+    *handler = (NetHandler) {&initializePosix, &connectPosix, &startPosix, &loopPosix, &receivePosix, &sendPosix, &closeConnectionPosix, &closePosix, NULL};
 
     return handler;
 }

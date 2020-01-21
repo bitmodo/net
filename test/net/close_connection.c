@@ -27,7 +27,7 @@ int main() {
     assert(netCloseConnection(sock) == ENULL_POINTER && "Close connection with a null handler and socket did not return a null pointer error");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netCloseConnection(sock) == ENULL_POINTER && "Close connection with a null socket and function did not return a null pointer error");
     free(gHandler);
@@ -35,7 +35,7 @@ int main() {
     closeConnection = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customCloseConnection, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, &customCloseConnection, NULL, NULL};
     sock = NULL;
     assert(netCloseConnection(sock) == CLOSE_CONNECTION_RETURN && "Close connection did not return the correct return value");
     assert(closeConnection && "Close connection did not set the expected variable");
@@ -45,7 +45,7 @@ int main() {
     closeConnection = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, &customCloseConnection, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, &customCloseConnection, NULL, NULL};
     sock = malloc(sizeof(Socket));
     assert(netCloseConnection(sock) == CLOSE_CONNECTION_RETURN && "Close connection did not return the correct return value");
     assert(closeConnection && "Close connection did not set the expected variable");

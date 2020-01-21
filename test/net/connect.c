@@ -27,7 +27,7 @@ int main() {
     assert(netConnect(sock) == ENULL_POINTER && "Connect with a null handler and socket did not return a null pointer error");
 
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netConnect(sock) == ENULL_POINTER && "Connect with a null socket and function did not return a null pointer error");
     free(gHandler);
@@ -35,7 +35,7 @@ int main() {
     connect = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, &customConnect, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, &customConnect, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = NULL;
     assert(netConnect(sock) == CONNECT_RETURN && "Connect did not return the correct return value");
     assert(connect && "Connect did not set the expected variable");
@@ -45,7 +45,7 @@ int main() {
     connect = false;
     hasSocket = false;
     gHandler = malloc(sizeof(NetHandler));
-    *gHandler = (NetHandler) {NULL, &customConnect, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    *gHandler = (NetHandler) {NULL, &customConnect, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
     sock = malloc(sizeof(Socket));
     assert(netConnect(sock) == CONNECT_RETURN && "Connect did not return the correct return value");
     assert(connect && "Connect did not set the expected variable");
