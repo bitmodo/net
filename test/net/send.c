@@ -12,7 +12,7 @@ extern NetHandler * gHandler;
 bool send = false;
 bool hasSocket = false;
 
-int customSend(Socket * sock, const void * buf, int size) {
+int customSend(Socket * sock, const void * buf, size_t size) {
     send = true;
     hasSocket = sock != NULL;
 

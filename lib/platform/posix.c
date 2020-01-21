@@ -145,7 +145,7 @@ int loopPosix(Socket * sock) {
     return ESUCCESS;
 }
 
-int receivePosix(Socket * sock, void * buf, int count, int * size) {
+int receivePosix(Socket * sock, void * buf, size_t count, size_t * size) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
     if (sock->side == SERVER && sock->data->conn == -1) return EINVALID_STATE;
 
@@ -154,7 +154,7 @@ int receivePosix(Socket * sock, void * buf, int count, int * size) {
     return ESUCCESS;
 }
 
-int sendPosix(Socket * sock, const void * buf, int count) {
+int sendPosix(Socket * sock, const void * buf, size_t count) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
     if (sock->side == SERVER && sock->data->conn == -1) return EINVALID_STATE;
 

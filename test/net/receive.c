@@ -13,7 +13,7 @@ extern NetHandler * gHandler;
 bool receive = false;
 bool hasSocket = false;
 
-int customReceive(Socket * sock, void * buf, int size, int * count) {
+int customReceive(Socket * sock, void * buf, size_t size, size_t * count) {
     receive = true;
     hasSocket = sock != NULL;
 

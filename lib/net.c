@@ -112,7 +112,7 @@ int netLoop(Socket * sock) {
     return handler->loop(sock);
 }
 
-int netReceive(Socket * sock, void * buf, int count, int * size) {
+int netReceive(Socket * sock, void * buf, size_t count, size_t * size) {
     NetHandler * handler = netGetHandler();
     if (!handler || !(handler->receive)) {
         return ENULL_POINTER;
@@ -121,7 +121,7 @@ int netReceive(Socket * sock, void * buf, int count, int * size) {
     return handler->receive(sock, buf, count, size);
 }
 
-int netSend(Socket * sock, const void * buf, int count) {
+int netSend(Socket * sock, const void * buf, size_t count) {
     NetHandler * handler = netGetHandler();
     if (!handler || !(handler->send)) {
         return ENULL_POINTER;

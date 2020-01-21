@@ -33,11 +33,11 @@ int main() {
 
     char buf[BUF_SIZE];
     fprintf(stdout, "Received message:\n");
-    int len;
+    size_t len;
     while (netReceive(sock, buf, BUF_SIZE, &len) == ESUCCESS && len >= BUF_SIZE) {
-        fprintf(stdout, "%.*s", len, buf);
+        fprintf(stdout, "%.*s", (int) len, buf);
     }
-    fprintf(stdout, "%.*s\n\n", len, buf);
+    fprintf(stdout, "%.*s\n\n", (int) len, buf);
 
     fprintf(stdout, "Sending response\n");
     char * res = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello world!";

@@ -40,7 +40,7 @@ void * server() {
             char buf[BUFFER_SIZE] = {0};
 
             // Receive data from the connection
-            int readSize;
+            size_t readSize;
             int readError;
             if ((readError = netReceive(sock, buf, sizeof(buf)-1, &readSize)) != ESUCCESS) {
                 fprintf(stderr, "Server: Error reading from the socket: %d\n", readError);
@@ -109,7 +109,7 @@ void * client() {
 
     // Receive a pong message
     char buf[BUFFER_SIZE] = {0};
-    int receiveSize;
+    size_t receiveSize;
     int receiveError = netReceive(sock, buf, sizeof(buf)-1, &receiveSize);
     if (receiveSize == -1 || receiveError != ESUCCESS) {
         fprintf(stderr, "Client: Error receiving\n");
