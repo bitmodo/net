@@ -3,7 +3,8 @@ FROM gitpod/workspace-full:build-branch-master
 USER root
 
 # Install packages
-RUN apt-get update \
+RUN add-apt-repository ppa:snaipewastaken/ppa \
+    && apt-get update \
     && apt-get install -yq --no-install-recommends \
         python3=3.7.3-1 \
         python3-pip=18.1-5 \
@@ -12,8 +13,9 @@ RUN apt-get update \
         ninja-build=1.8.2-1 \
         valgrind=1:3.14.0-2ubuntu6 \
         ccache=3.6-1 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*
-RUN /usr/sbin/update-ccache-symlinks
+        criterion-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* \
+    && /usr/sbin/update-ccache-symlinks
 
 USER gitpod
 
