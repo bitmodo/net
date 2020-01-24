@@ -2,11 +2,15 @@
 
 # Use criterion as a dependency for tests. This is defined here to
 # allow us to use it in subdirectories
-criterion_dep = dependency('criterion', version : '2.3.3')
+criterion_dep = dependency('criterion', version : '2.3.3', required : false)
+has_criterion = criterion_dep.found()
 
 # Generic test dependencies. These can be used on any test executable
 # to be sure they are linked with the proper dependencies
-test_deps = [criterion_dep, net_dep]
+test_deps = [net_dep]
+if has_criterion
+    test_deps += criterion_dep
+endif
 
 # The main test directory. This is platform independent, and just
 # confirms the basic top-level functionality of the API
