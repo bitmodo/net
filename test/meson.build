@@ -2,7 +2,7 @@
 
 # Use criterion as a dependency for tests. This is defined here to
 # allow us to use it in subdirectories
-criterion_dep = dependency('criterion', version : '2.3.3', required : false)
+criterion_dep = dependency('criterion', version : '>=2.3.2', required : false)
 has_criterion = criterion_dep.found()
 
 # Generic test dependencies. These can be used on any test executable
