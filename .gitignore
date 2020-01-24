@@ -3,3 +3,6 @@ build/
 cmake-*/
 vgcore.*
 core.*
+
+subprojects/*/
+!subprojects/*.wrap

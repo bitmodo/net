@@ -18,4 +18,6 @@ RUN apt-get update \
 USER gitpod
 
 # Install pip packages
-RUN pip3 install meson==0.53.0 gcovr==4.2
+RUN pip3 install meson==0.53.0 gcovr==4.2 \
+    && brew install snaipe/soft/criterion pkg-config \
+    && echo 'export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"' >> ~/.bash_profile
