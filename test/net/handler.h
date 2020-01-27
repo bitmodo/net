@@ -31,7 +31,10 @@ HandlerParam toParam(NetHandler * handler) {
 void cleanupHandlerParam(struct criterion_test_params *ctp) {
     for (size_t i = 0; i < ctp->length; ++i) {
         struct HandlerParam *tup = (struct HandlerParam *) ctp->params + i;
-        cr_free(tup->handler);
+
+        if (tup->handler) {
+            cr_free(tup->handler);
+        }
     }
 
     cr_free(ctp->params);
