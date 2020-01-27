@@ -11,7 +11,7 @@
 extern NetHandler * gHandler;
 
 // Fix free called from cleanup
-void free (void *ptr) {
+void free(void *ptr) {
     cr_free(ptr);
 }
 
