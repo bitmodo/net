@@ -12,9 +12,12 @@ NetHandler * fillEmptyHandler(NetHandler * handler) {
     return handler;
 }
 
+NetHandler * createHandler() {
+    return cr_malloc(sizeof(NetHandler));
+}
+
 NetHandler * createEmptyHandler() {
-    NetHandler * handler = cr_malloc(sizeof(NetHandler));
-    return fillEmptyHandler(handler);
+    return fillEmptyHandler(createHandler());
 }
 
 typedef struct HandlerParam {
