@@ -52,16 +52,16 @@ void cleanupAddressParam(struct criterion_test_params *ctp) {
 }
 
 #define ADDRESS_PARAMS                                                                                      \
-    const size_t size = 4;                                                                                  \
+    const size_t size = 5;                                                                                  \
     AddressParams *params = cr_malloc(sizeof(AddressParams) * size);                                        \
                                                                                                             \
     int pos = 0;                                                                                            \
     for (int i = 0; i < 2; i++) {                                                                           \
-        for (int j = 0; j < 2; j++) {                                                                       \
+        for (int j = 0; j < 3; j++) {                                                                       \
             char * address = NULL;                                                                          \
             if (j != 0) {                                                                                   \
-                char * addrTmp = "test";                                                                    \
-                address = cr_malloc(sizeof(char) * strlen(addrTmp));                                        \
+                char * addrTmp = j == 1 ? "test" : "";                                                      \
+                address = cr_malloc(sizeof(char) * strlen(addrTmp) + 1);                                    \
                 address = strcpy(address, addrTmp);                                                         \
             }                                                                                               \
                                                                                                             \
