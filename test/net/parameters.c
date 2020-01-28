@@ -141,7 +141,7 @@ void cleanupAddressTypeParam(struct criterion_test_params *ctp) {
     return cr_make_param_array(AddressTypeParams, params, size, cleanupAddressParam)
 
 ParameterizedTestParameters(address_type, set) {
-    ADDRESS_PARAMS;
+    ADDRESS_TYPE_PARAMS;
 }
 
 ParameterizedTest(AddressTypeParams * param, address_type, set) {
@@ -154,7 +154,7 @@ ParameterizedTest(AddressTypeParams * param, address_type, set) {
 }
 
 ParameterizedTestParameters(address_type, get) {
-    ADDRESS_PARAMS;
+    ADDRESS_TYPE_PARAMS;
 }
 
 ParameterizedTest(AddressTypeParams * param, address_type, get) {
@@ -201,7 +201,7 @@ void cleanupPortParam(struct criterion_test_params *ctp) {
     return cr_make_param_array(PortParams, params, size, cleanupAddressParam)
 
 ParameterizedTestParameters(port, set) {
-    ADDRESS_PARAMS;
+    PORT_PARAMS;
 }
 
 ParameterizedTest(PortParams * param, port, set) {
@@ -214,7 +214,7 @@ ParameterizedTest(PortParams * param, port, set) {
 }
 
 ParameterizedTestParameters(port, get) {
-    ADDRESS_PARAMS;
+    PORT_PARAMS;
 }
 
 ParameterizedTest(PortParams * param, port, get) {
