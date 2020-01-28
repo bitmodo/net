@@ -35,6 +35,13 @@ typedef struct AddressParams {
     char * address;
 } AddressParams;
 
+char * cr_strdup(char * str) {
+    char * result = cr_malloc(sizeof(char) * strlen(str) + 1);
+    result = strcpy(result, str);
+
+    return result;
+}
+
 void cleanupAddressParam(struct criterion_test_params *ctp) {
     for (size_t i = 0; i < ctp->length; ++i) {
         struct AddressParams *tup = (struct AddressParams *) ctp->params + i;
@@ -52,22 +59,15 @@ void cleanupAddressParam(struct criterion_test_params *ctp) {
 }
 
 #define ADDRESS_PARAMS                                                                                      \
-    const size_t size = 5;                                                                                  \
+    const size_t size = 6;                                                                                  \
     AddressParams *params = cr_malloc(sizeof(AddressParams) * size);                                        \
                                                                                                             \
-    int pos = 0;                                                                                            \
-    for (int i = 0; i < 2; i++) {                                                                           \
-        for (int j = 0; j < 3; j++) {                                                                       \
-            char * address = NULL;                                                                          \
-            if (j != 0) {                                                                                   \
-                char * addrTmp = j == 1 ? "test" : "";                                                      \
-                address = cr_malloc(sizeof(char) * strlen(addrTmp) + 1);                                    \
-                address = strcpy(address, addrTmp);                                                         \
-            }                                                                                               \
-                                                                                                            \
-            params[pos++] = (AddressParams) {.sock = (i == 0 ? NULL : createSocket()), .address = address}; \
-        }                                                                                                   \
-    }                                                                                                       \
+    params[0] = (AddressParams) {.sock = NULL, .address = NULL};                                            \
+    params[1] = (AddressParams) {.sock = NULL, .address = cr_strdup("")};                                   \
+    params[2] = (AddressParams) {.sock = NULL, .address = cr_strdup("test")};                               \
+    params[3] = (AddressParams) {.sock = createSocket(), .address = NULL};                                  \
+    params[4] = (AddressParams) {.sock = createSocket(), .address = cr_strdup("")};                         \
+    params[5] = (AddressParams) {.sock = createSocket(), .address = cr_strdup("test")};                     \
                                                                                                             \
     return cr_make_param_array(AddressParams, params, size, cleanupAddressParam)
 
