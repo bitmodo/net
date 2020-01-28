@@ -33,7 +33,7 @@ int main() {
 
     char buf[BUF_SIZE];
     fprintf(stdout, "Received message:\n");
-    size_t len;
+    ssize_t len;
     while (netReceive(sock, buf, BUF_SIZE, &len) == ESUCCESS && len >= BUF_SIZE) {
         fprintf(stdout, "%.*s", (int) len, buf);
     }

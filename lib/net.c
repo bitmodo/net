@@ -112,7 +112,7 @@ int netLoop(Socket * sock) {
     return handler->loop(sock);
 }
 
-int netReceive(Socket * sock, void * buf, size_t count, size_t * size) {
+int netReceive(Socket * sock, void * buf, size_t count, ssize_t * size) {
     NetHandler * handler = netGetHandler();
     if (!handler || !(handler->receive)) {
         return ENULL_POINTER;
