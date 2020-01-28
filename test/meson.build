@@ -1,4 +1,6 @@
 # This file adds all of the subdirectories so they can define tests
+test_files = []
+test_deps = {}
 
 # Use criterion as a dependency for tests. This is defined here to
 # allow us to use it in subdirectories
@@ -21,3 +23,15 @@ if posix
     # to ensure the compatibility with the Posix specific functions
     subdir('posix')
 endif
+
+# Setup all of the executables and tests
+foreach file : test_files
+    name = file.get('name')
+    src = file.get('src')
+    type = file.get('type', 'base')
+    args = file.get('args', [])
+    dep = test_deps.get(type)
+
+    exe = executable('test-' + name, src, dependencies: test_deps.get(type))
+    test(name, exe, args: args)
+endforeach

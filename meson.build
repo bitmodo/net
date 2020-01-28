@@ -50,18 +50,5 @@ pkg.generate(libraries : libs,
              description : 'A networking library.')
 
 # Setup all of the tests and examples
-test_files = []
-test_deps = {}
 subdir('test')
 subdir('example')
-
-foreach file : test_files
-    name = file.get('name')
-    src = file.get('src')
-    type = file.get('type', 'base')
-    args = file.get('args', [])
-    dep = test_deps.get(type)
-
-    exe = executable('test-' + name, src, dependencies: test_deps.get(type))
-    test(name, exe, args: args)
-endforeach
