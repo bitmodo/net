@@ -7,9 +7,9 @@ has_criterion = criterion_dep.found()
 
 # Generic test dependencies. These can be used on any test executable
 # to be sure they are linked with the proper dependencies
-test_deps = [net_dep]
+test_deps += {'base': net_dep}
 if has_criterion
-    test_deps += criterion_dep
+    test_deps += {'criterion': [net_dep, criterion_dep]}
 endif
 
 # The main test directory. This is platform independent, and just
