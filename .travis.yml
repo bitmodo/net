@@ -27,3 +27,4 @@ addons:
     - sourceline: ppa:snaipewastaken/ppa
     packages:
     - criterion-dev
+    - valgrind=1:3.14.0-2ubuntu6

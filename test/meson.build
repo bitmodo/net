@@ -36,6 +36,7 @@ foreach file : test_files
     test(name, exe, args: args)
 endforeach
 
+# Valgrind test setup
 valgrind = find_program('valgrind', required: false)
 if valgrind.found()
     always_valgrind = get_option('always_valgrind')
