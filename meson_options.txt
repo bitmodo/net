@@ -1,0 +1,1 @@
+option('always_valgrind', type: 'boolean', value: false, description: 'When valgrind is found, always use it as the default test setup. This can cause test times to be longer.')

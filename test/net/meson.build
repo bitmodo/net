@@ -1,5 +1,5 @@
 if has_criterion
-    args = ['--verbose', '-j1']
+    args = ['--verbose']
 
     test_files += {'name': 'c-handler', 'type': 'criterion', 'args': args, 'src': files('handler.c')}
     test_files += {'name': 'c-setup', 'type': 'criterion', 'args': args, 'src': files('setup.c')}

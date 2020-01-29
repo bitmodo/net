@@ -35,3 +35,17 @@ foreach file : test_files
     exe = executable('test-' + name, src, dependencies: test_deps.get(type))
     test(name, exe, args: args)
 endforeach
+
+valgrind = find_program('valgrind', required: false)
+if valgrind.found()
+    always_valgrind = get_option('always_valgrind')
+    add_test_setup('valgrind', exe_wrapper: [valgrind, '--leak-check=full', '--trace-children=yes', '--error-exitcode=3'], timeout_multiplier: 100, is_default: always_valgrind)
+    
+    if always_valgrind
+        message('Using valgrind as the test setup to check for memory leaks')
+    else
+        message('Valgrind was found, but won\'t be used as the default test setup. To use it, you must enable it manually or setup the project again.')
+    endif
+else
+    message('Valgrind was not found, so it won\'t be used for tests')
+endif
