@@ -1,1 +1,5 @@
-# Tmp until we start working on posix tests
+if has_criterion
+    args = ['--verbose']
+    
+    test_files += {'name': 'c-posix-initialize', 'type': 'criterion', 'args': args, 'src': files('initialize.c')}
+endif
