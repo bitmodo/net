@@ -1,6 +1,8 @@
 ignore:
  - "example"
  - "test"
+fixes:
+ - "../::"
 parsers:
   gcov:
     branch_detection:
