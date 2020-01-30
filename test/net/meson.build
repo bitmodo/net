@@ -13,4 +13,8 @@ if has_criterion
     test_files += {'name': 'c-start', 'type': 'criterion', 'args': args, 'src': files('start.c')}
     test_files += {'name': 'c-loop', 'type': 'criterion', 'args': args, 'src': files('loop.c')}
     test_files += {'name': 'c-close-connection', 'type': 'criterion', 'args': args, 'src': files('close_connection.c')}
+
+    test_files += {'name': 'c-receive', 'type': 'criterion', 'args': args, 'src': files('receive.c')}
+    test_files += {'name': 'c-send', 'type': 'criterion', 'args': args, 'src': files('send.c')}
+    test_files += {'name': 'c-close', 'type': 'criterion', 'args': args, 'src': files('close.c')}
 endif

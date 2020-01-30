@@ -40,7 +40,13 @@ endforeach
 valgrind = find_program('valgrind', required: false)
 if valgrind.found()
     always_valgrind = get_option('always_valgrind')
-    add_test_setup('valgrind', exe_wrapper: [valgrind, '--leak-check=full', '--trace-children=yes', '--error-exitcode=3'], timeout_multiplier: 100, is_default: always_valgrind)
+    add_test_setup('valgrind', exe_wrapper:
+            [valgrind,
+            '--leak-check=full',
+            '--trace-children=yes',
+            '--errors-for-leak-kinds=all',
+            '--error-exitcode=3'],
+        timeout_multiplier: 100, is_default: always_valgrind)
     
     if always_valgrind
         message('Using valgrind as the test setup to check for memory leaks')

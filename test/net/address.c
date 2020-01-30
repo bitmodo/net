@@ -22,7 +22,7 @@ char * cr_strdup(char * str) {
     return result;
 }
 
-void cleanupAddressParam(struct criterion_test_params *ctp) {
+void cleanupAddressParam(struct criterion_test_params * ctp) {
     for (size_t i = 0; i < ctp->length; ++i) {
         AddressParams * tup = (AddressParams *) ctp->params + i;
 
