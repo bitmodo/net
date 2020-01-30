@@ -37,7 +37,9 @@ void cleanupParams(struct criterion_test_params * ctp) {
     cr_free(ctp->params);
 }
 
-int customFunction() {
+int customFunction(Socket ** sock) {
+    if (*sock == NULL) return EUNKNOWN;
+
     return ESUCCESS;
 }
 
@@ -47,7 +49,7 @@ ParameterizedTestParameters(method, close) {
 
     params[0] = (Params) {.handler = NULL, .useMethod = false, .sock = NULL, .rv = ENULL_POINTER};
     params[1] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = false, .sock = NULL, .rv = ENULL_POINTER};
-    params[2] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = true, .sock = NULL, .rv = ESUCCESS};
+    params[2] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = true, .sock = NULL, .rv = EUNKNOWN};
     params[3] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = true, .sock = cr_malloc(sizeof(Socket)), .rv = ESUCCESS};
 
     return cr_make_param_array(Params, params, size, cleanupParams);
