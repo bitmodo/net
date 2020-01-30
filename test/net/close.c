@@ -38,19 +38,32 @@ void cleanupParams(struct criterion_test_params * ctp) {
 }
 
 int customFunction(Socket ** sock) {
-    if (*sock == NULL) return EUNKNOWN;
+    if (*sock) {
+        int side = (*sock)->side;
+        if (side) {
+            cr_free(*sock);
+            *sock = NULL;
+        }
+
+        return side;
+    }
 
     return ESUCCESS;
 }
 
 ParameterizedTestParameters(method, close) {
-    const size_t size = 4;
+    const size_t size = 5;
     Params * params = cr_malloc(sizeof(Params) * size);
 
     params[0] = (Params) {.handler = NULL, .useMethod = false, .sock = NULL, .rv = ENULL_POINTER};
     params[1] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = false, .sock = NULL, .rv = ENULL_POINTER};
-    params[2] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = true, .sock = NULL, .rv = EUNKNOWN};
+    params[2] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = true, .sock = NULL, .rv = ESUCCESS};
+
     params[3] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = true, .sock = cr_malloc(sizeof(Socket)), .rv = ESUCCESS};
+    params[3].sock->side = ESUCCESS;
+
+    params[4] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .useMethod = true, .sock = cr_malloc(sizeof(Socket)), .rv = EUNKNOWN};
+    params[4].sock->side = EUNKNOWN;
 
     return cr_make_param_array(Params, params, size, cleanupParams);
 }
