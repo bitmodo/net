@@ -147,7 +147,7 @@ int loopPosix(Socket * sock) {
 
 int receivePosix(Socket * sock, void * buf, size_t count, ssize_t * size) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
-    if (sock->side == SERVER && sock->data->conn == -1) return EINVALID_STATE;
+    if ((sock->side == SERVER && sock->data->conn == -1) || (sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
     if ((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0) return EUNKNOWN;
 
