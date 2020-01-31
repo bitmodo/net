@@ -58,7 +58,7 @@ if [ "$reconfig" = "1" ]; then
         args="${args} $@"
     fi
 
-    meson setup $args "${DIR}/build"
+    eval "meson setup ${args} ${DIR}/build"
 
     if [ "$setup" = "1" ]; then
         exit 0
@@ -71,20 +71,20 @@ if [ "$testing" = "1" ]; then
         args="${args} --setup valgrind"
     fi
 
-    meson test $args
+    eval "meson test ${args}"
     exit 0
 fi
 
 if [ "$build" = "1" ]; then
     args="-C ${DIR}/build $@"
 
-    ninja $args
+    eval "ninja ${args}"
     exit 0
 fi
 
 if [ "$coverage" = "1" ]; then
     args="-C ${DIR}/build $@"
 
-    ninja $args coverage
+    eval "ninja ${args} coverage"
     exit 0
 fi
