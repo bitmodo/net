@@ -49,15 +49,15 @@ void cleanupParams(struct criterion_test_params * ctp) {
         Params * tup = (Params *) ctp->params + i;
 
         if (tup->handler) {
-            free(tup->handler);
+            cr_free(tup->handler);
         }
 
         if (tup->sock) {
             if (tup->sock->data) {
-                free(tup->sock->data);
+                cr_free(tup->sock->data);
             }
 
-            free(tup->sock);
+            cr_free(tup->sock);
         }
     }
 

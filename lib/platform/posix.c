@@ -138,7 +138,7 @@ int loopPosix(Socket * sock) {
     if (sock->data->conn != -1 || sock->data->fd == -1) return EINVALID_STATE;
 
     int fd;
-    if ((fd = accept(sock->data->fd, NULL, 0)) < 0) return EUNKNOWN;
+    if ((fd = accept(sock->data->fd, NULL, 0)) < 0) return EUNKNOWN; // TODO(Fishy): Add error values
 
     sock->data->conn = fd;
 
