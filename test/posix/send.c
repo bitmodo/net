@@ -22,15 +22,17 @@ ssize_t send(int fd, const void * buf, size_t n, int flags) {
 }
 
 ParameterizedTestParameters(posix, send) {
-    const size_t size = 6;
+    const size_t size = 8;
     Params * params = cr_malloc(sizeof(Params) * size);
 
     params[0] = (Params) {.handler = cr_malloc(sizeof(NetHandler)), .sock = NULL, .rv = ENULL_POINTER};
     params[1] = toParam((Socket) {.data = NULL}, ENULL_POINTER);
     params[2] = toParam((Socket) {.side = SERVER, .data = createData(-1, -1)}, EINVALID_STATE);
     params[3] = toParam((Socket) {.side = CLIENT, .data = createData(-1, -1)}, EINVALID_STATE);
-    params[4] = toParam((Socket) {.data = createData(1, 0)}, EUNKNOWN);
-    params[5] = toParam((Socket) {.data = createData(4, 0)}, ESUCCESS);
+    params[4] = toParam((Socket) {.side = SERVER, .data = createData(1, 0)}, EUNKNOWN);
+    params[5] = toParam((Socket) {.side = SERVER, .data = createData(4, 0)}, ESUCCESS);
+    params[6] = toParam((Socket) {.side = CLIENT, .data = createData(1, 0)}, EUNKNOWN);
+    params[7] = toParam((Socket) {.side = CLIENT, .data = createData(4, 0)}, ESUCCESS);
 
     return cr_make_param_array(Params, params, size, cleanupParams);
 }
