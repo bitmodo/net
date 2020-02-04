@@ -12,3 +12,4 @@ endif
 # Add non-criterion tests
 subdir('connect')
 subdir('start')
+subdir('setupSocket')
