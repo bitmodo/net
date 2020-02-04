@@ -10,6 +10,7 @@ void freeaddrinfo(struct addrinfo * ai) { }
 
 int main() {
     Socket * sock = malloc(sizeof(Socket));
+    *sock = (Socket) {};
 
     assert(prepareSocket(NULL, sock) == EUNKNOWN && "Did not get the expected return value from bad flags error");
 
