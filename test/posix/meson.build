@@ -8,3 +8,7 @@ if has_criterion
     test_files += {'name': 'c-posix-close-connection', 'type': 'criterion', 'args': args, 'src': files('close_connection.c')}
     test_files += {'name': 'c-posix-close', 'type': 'criterion', 'args': args, 'src': files('close.c')}
 endif
+
+# Add non-criterion tests
+subdir('connect')
+subdir('start')

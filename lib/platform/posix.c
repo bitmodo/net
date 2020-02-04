@@ -111,7 +111,7 @@ int connectFunction(int sfd, struct addrinfo *info) {
 int connectPosix(Socket * sock) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
     if (sock->side != CLIENT) return EINCORRECT_SIDE;
-    if (sock->data->conn != -1) return EIN_USE;
+    if (sock->data->fd != -1) return EIN_USE;
 
     return prepareSocket(&connectFunction, sock);
 }
@@ -127,7 +127,7 @@ int startFunction(int sfd, struct addrinfo *info) {
 int startPosix(Socket * sock) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
-    if (sock->data->conn != -1) return EIN_USE;
+    if (sock->data->fd != -1) return EIN_USE;
 
     return prepareSocket(&startFunction, sock);
 }
