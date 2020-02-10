@@ -24,6 +24,11 @@ if posix
     subdir('posix')
 endif
 
+test_c_args = []
+if compiler.has_argument('-w')
+    test_c_args += '-w'
+endif
+
 # Setup all of the executables and tests
 foreach file : test_files
     name = file.get('name')
@@ -32,7 +37,7 @@ foreach file : test_files
     args = file.get('args', [])
     dep = test_deps.get(type)
 
-    exe = executable('test-' + name, src, dependencies: test_deps.get(type))
+    exe = executable('test-' + name, src, dependencies: test_deps.get(type), c_args: test_c_args)
     test(name, exe, args: args)
 endforeach
 

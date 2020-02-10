@@ -23,6 +23,8 @@ struct SocketData {
     int conn;
 };
 
+NET_CONST
+NET_NO_THROW
 int socketTypeToNetworkType(int type) {
     if (type == UDP) {
         return SOCK_DGRAM;
@@ -31,6 +33,8 @@ int socketTypeToNetworkType(int type) {
     return SOCK_STREAM;
 }
 
+NET_CONST
+NET_NO_THROW
 int addressTypeToFamilyType(int type) {
     if (type == IPv4) {
         return AF_INET;
@@ -43,6 +47,7 @@ int addressTypeToFamilyType(int type) {
     return AF_UNSPEC;
 }
 
+NET_MALLOC
 SocketData * initializePosix() {
     SocketData * data = malloc(sizeof(SocketData));
     *data = (SocketData) {-1, -1};
@@ -50,7 +55,7 @@ SocketData * initializePosix() {
     return data;
 }
 
-int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
+int prepareSocket(NET_NO_ESCAPE int (* function)(int, struct addrinfo *), NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = addressTypeToFamilyType(sock->addressType); // Allow IPv4 or IPv6
@@ -104,7 +109,7 @@ int prepareSocket(int (* function)(int, struct addrinfo *), Socket * sock) {
     return ESUCCESS;
 }
 
-int connectFunction(int sfd, struct addrinfo *info) {
+int connectFunction(int sfd, NET_NO_ESCAPE struct addrinfo * info) {
     return connect(sfd, info->ai_addr, info->ai_addrlen);
 }
 
@@ -116,7 +121,7 @@ int connectPosix(Socket * sock) {
     return prepareSocket(&connectFunction, sock);
 }
 
-int startFunction(int sfd, struct addrinfo *info) {
+int startFunction(int sfd, NET_NO_ESCAPE struct addrinfo * info) {
     if (bind(sfd, info->ai_addr, info->ai_addrlen) == -1) return -1;
 
     if (listen(sfd, NET_BUFFER_COUNT) == -1) return -1;
@@ -132,7 +137,7 @@ int startPosix(Socket * sock) {
     return prepareSocket(&startFunction, sock);
 }
 
-int loopPosix(Socket * sock) {
+int loopPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     if (!sock || !(sock->data)) return ECLOSED;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
     if (sock->data->conn != -1 || sock->data->fd == -1) return EINVALID_STATE;
@@ -145,7 +150,7 @@ int loopPosix(Socket * sock) {
     return ESUCCESS;
 }
 
-int receivePosix(Socket * sock, void * buf, size_t count, ssize_t * size) {
+int receivePosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, void * buf, size_t count, ssize_t * size) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
     if ((sock->side == SERVER && sock->data->conn == -1) || (sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
@@ -154,7 +159,7 @@ int receivePosix(Socket * sock, void * buf, size_t count, ssize_t * size) {
     return ESUCCESS;
 }
 
-int sendPosix(Socket * sock, const void * buf, size_t count) {
+int sendPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, const void * buf, size_t count) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
     if ((sock->side == SERVER && sock->data->conn == -1) || (sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
@@ -169,7 +174,7 @@ int sendPosix(Socket * sock, const void * buf, size_t count) {
     return ESUCCESS;
 }
 
-int closeConnectionPosix(Socket * sock) {
+int closeConnectionPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     if (!sock || !(sock->data)) return ENULL_POINTER;
     if (sock->side == CLIENT) return EINCORRECT_SIDE;
     if (sock->data->conn == -1) return EINVALID_STATE;

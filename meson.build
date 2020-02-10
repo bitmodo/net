@@ -33,9 +33,14 @@ else
     warning('No platform is compiled for. If this is not what you want, check your environment.')
 endif
 
+net_c_args = []
+if compiler.has_argument('-Wno-nonnull-compare')
+    net_c_args += '-Wno-nonnull-compare'
+endif
+
 # Library stuff & headers
 install_headers(files('include/net/net.h', 'include/net/error.h', 'include/net/util.h'), subdir: 'net')
-net_lib = library('net', net_src, include_directories: [net_inc], install: true)
+net_lib = library('net', net_src, include_directories: [net_inc], c_args: ['-DNET_COMPILATION'] + net_c_args, install: true)
 net_dep = declare_dependency(include_directories: [net_inc], link_with: [net_lib])
 
 # Add pkgconfig stuff

@@ -20,7 +20,7 @@ void netSetHandler(NetHandler * handler) {
 Socket * netSocket(int side, int type) {
     SocketData * data = NULL;
     NetHandler * handler = netGetHandler();
-    if (handler && handler->initialize) {
+    if (NET_LIKELY(handler && handler->initialize)) {
         data = handler->initialize(side, type);
     }
 
@@ -33,8 +33,8 @@ Socket * netSocket(int side, int type) {
 void netCleanup() {
     NetHandler * handler = netGetHandler();
 
-    if (handler) {
-        if (handler->cleanup) {
+    if (NET_LIKELY(handler)) {
+        if (NET_LIKELY(handler->cleanup)) {
             handler->cleanup();
         }
 
@@ -43,42 +43,42 @@ void netCleanup() {
     }
 }
 
-void netSetAddress(Socket * sock, const char * addr) {
-    if (sock) {
+void netSetAddress(NET_NO_ESCAPE Socket * NET_RESTRICT sock, const char * addr) {
+    if (NET_LIKELY(sock)) {
         sock->address = addr;
     }
 }
 
-const char * netGetAddress(Socket * sock) {
-    if (sock) {
+const char * netGetAddress(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
+    if (NET_LIKELY(sock)) {
         return sock->address;
     }
 
     return NULL;
 }
 
-void netSetAddressType(Socket * sock, int type) {
-    if (sock) {
+void netSetAddressType(NET_NO_ESCAPE Socket * NET_RESTRICT sock, int type) {
+    if (NET_LIKELY(sock)) {
         sock->addressType = type;
     }
 }
 
-int netGetAddressType(Socket * sock) {
-    if (sock) {
+int netGetAddressType(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
+    if (NET_LIKELY(sock)) {
         return sock->addressType;
     }
 
     return UNSPEC;
 }
 
-void netSetPort(Socket * sock, unsigned port) {
-    if (sock) {
+void netSetPort(NET_NO_ESCAPE Socket * NET_RESTRICT sock, unsigned port) {
+    if (NET_LIKELY(sock)) {
         sock->port = port;
     }
 }
 
-unsigned netGetPort(Socket * sock) {
-    if (sock) {
+unsigned netGetPort(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
+    if (NET_LIKELY(sock)) {
         return sock->port;
     }
 
@@ -87,7 +87,7 @@ unsigned netGetPort(Socket * sock) {
 
 int netConnect(Socket * sock) {
     NetHandler * handler = netGetHandler();
-    if (!handler || !(handler->connect)) {
+    if (NET_UNLIKELY(!handler || !(handler->connect))) {
         return ENULL_POINTER;
     }
 
@@ -96,7 +96,7 @@ int netConnect(Socket * sock) {
 
 int netStart(Socket * sock) {
     NetHandler * handler = netGetHandler();
-    if (!handler || !(handler->start)) {
+    if (NET_UNLIKELY(!handler || !(handler->start))) {
         return ENULL_POINTER;
     }
 
@@ -105,7 +105,7 @@ int netStart(Socket * sock) {
 
 int netLoop(Socket * sock) {
     NetHandler * handler = netGetHandler();
-    if (!handler || !(handler->loop)) {
+    if (NET_UNLIKELY(!handler || !(handler->loop))) {
         return ENULL_POINTER;
     }
 
@@ -114,7 +114,7 @@ int netLoop(Socket * sock) {
 
 int netReceive(Socket * sock, void * buf, size_t count, ssize_t * size) {
     NetHandler * handler = netGetHandler();
-    if (!handler || !(handler->receive)) {
+    if (NET_UNLIKELY(!handler || !(handler->receive))) {
         return ENULL_POINTER;
     }
 
@@ -123,7 +123,7 @@ int netReceive(Socket * sock, void * buf, size_t count, ssize_t * size) {
 
 int netSend(Socket * sock, const void * buf, size_t count) {
     NetHandler * handler = netGetHandler();
-    if (!handler || !(handler->send)) {
+    if (NET_UNLIKELY(!handler || !(handler->send))) {
         return ENULL_POINTER;
     }
 
@@ -132,7 +132,7 @@ int netSend(Socket * sock, const void * buf, size_t count) {
 
 int netCloseConnection(Socket * sock) {
     NetHandler * handler = netGetHandler();
-    if (!handler || !(handler->closeConnection)) {
+    if (NET_UNLIKELY(!handler || !(handler->closeConnection))) {
         return ENULL_POINTER;
     }
 
@@ -141,14 +141,14 @@ int netCloseConnection(Socket * sock) {
 
 int netClose(Socket ** sock) {
     NetHandler * handler = netGetHandler();
-    if (!handler || !(handler->close)) {
+    if (NET_UNLIKELY(!handler || !(handler->close))) {
         return ENULL_POINTER;
     }
 
     int ec;
-    if ((ec = handler->close(sock)) != ESUCCESS) return ec;
+    if (NET_UNLIKELY((ec = handler->close(sock)) != ESUCCESS)) return ec;
 
-    if (*sock) {
+    if (NET_LIKELY(*sock)) {
         free(*sock);
         *sock = NULL;
     }
