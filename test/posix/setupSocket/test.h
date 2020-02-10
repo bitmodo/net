@@ -11,4 +11,9 @@ struct addrinfo;
 
 extern int prepareSocket(int (*)(int, struct addrinfo *), Socket *);
 
+struct SocketData {
+    int fd;
+    int conn;
+};
+
 #endif

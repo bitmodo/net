@@ -55,13 +55,14 @@ SocketData * initializePosix() {
     return data;
 }
 
+NET_NON_NULL(1, 2)
 int prepareSocket(NET_NO_ESCAPE int (* function)(int, struct addrinfo *), NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = addressTypeToFamilyType(sock->addressType); // Allow IPv4 or IPv6
     hints.ai_socktype = socketTypeToNetworkType(sock->type); // Use correct socket type
     hints.ai_flags = (sock->side == SERVER ? AI_PASSIVE : 0) | AI_V4MAPPED | AI_ADDRCONFIG; // Set necessary flags
-    hints.ai_protocol = sock->type == TCP ? IPPROTO_TCP : sock->type == UDP ? IPPROTO_UDP : 0; // Use correct protocol
+    hints.ai_protocol = sock->type == UDP ? IPPROTO_UDP : IPPROTO_TCP; // Use correct protocol
 
     struct addrinfo * info;
     int err = getaddrinfo(sock->address, NULL, &hints, &info);
@@ -109,18 +110,21 @@ int prepareSocket(NET_NO_ESCAPE int (* function)(int, struct addrinfo *), NET_NO
     return ESUCCESS;
 }
 
+NET_NON_NULL(2)
 int connectFunction(int sfd, NET_NO_ESCAPE struct addrinfo * info) {
     return connect(sfd, info->ai_addr, info->ai_addrlen);
 }
 
+NET_NON_NULL(1)
 int connectPosix(Socket * sock) {
-    if (!sock || !(sock->data)) return ENULL_POINTER;
-    if (sock->side != CLIENT) return EINCORRECT_SIDE;
-    if (sock->data->fd != -1) return EIN_USE;
+    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (NET_UNLIKELY(sock->side != CLIENT)) return EINCORRECT_SIDE;
+    if (NET_UNLIKELY(sock->data->fd != -1)) return EIN_USE;
 
     return prepareSocket(&connectFunction, sock);
 }
 
+NET_NON_NULL(2)
 int startFunction(int sfd, NET_NO_ESCAPE struct addrinfo * info) {
     if (bind(sfd, info->ai_addr, info->ai_addrlen) == -1) return -1;
 
@@ -129,44 +133,48 @@ int startFunction(int sfd, NET_NO_ESCAPE struct addrinfo * info) {
     return 0;
 }
 
+NET_NON_NULL(1)
 int startPosix(Socket * sock) {
-    if (!sock || !(sock->data)) return ENULL_POINTER;
-    if (sock->side == CLIENT) return EINCORRECT_SIDE;
-    if (sock->data->fd != -1) return EIN_USE;
+    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (NET_UNLIKELY(sock->side == CLIENT)) return EINCORRECT_SIDE;
+    if (NET_UNLIKELY(sock->data->fd != -1)) return EIN_USE;
 
     return prepareSocket(&startFunction, sock);
 }
 
+NET_NON_NULL(1)
 int loopPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
-    if (!sock || !(sock->data)) return ECLOSED;
-    if (sock->side == CLIENT) return EINCORRECT_SIDE;
-    if (sock->data->conn != -1 || sock->data->fd == -1) return EINVALID_STATE;
+    if (!NET_LIKELY(sock) || !(sock->data)) return ECLOSED;
+    if (NET_UNLIKELY(sock->side == CLIENT)) return EINCORRECT_SIDE;
+    if (NET_UNLIKELY(sock->data->conn != -1) || NET_UNLIKELY(sock->data->fd == -1)) return EINVALID_STATE;
 
     int fd;
-    if ((fd = accept(sock->data->fd, NULL, 0)) < 0) return EUNKNOWN; // TODO(Fishy): Add error values
+    if (NET_UNLIKELY((fd = accept(sock->data->fd, NULL, 0)) < 0)) return EUNKNOWN; // TODO(Fishy): Add error values
 
     sock->data->conn = fd;
 
     return ESUCCESS;
 }
 
+NET_NON_NULL(1, 2)
 int receivePosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, void * buf, size_t count, ssize_t * size) {
-    if (!sock || !(sock->data)) return ENULL_POINTER;
-    if ((sock->side == SERVER && sock->data->conn == -1) || (sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
+    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (NET_UNLIKELY(sock->side == SERVER && sock->data->conn == -1) || NET_UNLIKELY(sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
-    if ((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0) return EUNKNOWN;
+    if (NET_UNLIKELY((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0)) return EUNKNOWN;
 
     return ESUCCESS;
 }
 
+NET_NON_NULL(1, 2)
 int sendPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, const void * buf, size_t count) {
-    if (!sock || !(sock->data)) return ENULL_POINTER;
-    if ((sock->side == SERVER && sock->data->conn == -1) || (sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
+    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (NET_UNLIKELY(sock->side == SERVER && sock->data->conn == -1) || NET_UNLIKELY(sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
     int fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
     while (count > 0) {
         int i = send(fd, buf, count, 0);
-        if (i < 1) return EUNKNOWN;
+        if (NET_UNLIKELY(i < 1)) return EUNKNOWN;
         buf += i;
         count -= i;
     }
@@ -174,10 +182,11 @@ int sendPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, const void * buf, size_t
     return ESUCCESS;
 }
 
+NET_NON_NULL(1)
 int closeConnectionPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
-    if (!sock || !(sock->data)) return ENULL_POINTER;
-    if (sock->side == CLIENT) return EINCORRECT_SIDE;
-    if (sock->data->conn == -1) return EINVALID_STATE;
+    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (NET_UNLIKELY(sock->side == CLIENT)) return EINCORRECT_SIDE;
+    if (NET_UNLIKELY(sock->data->conn == -1)) return EINVALID_STATE;
 
     close(sock->data->conn);
     sock->data->conn = -1;
@@ -185,10 +194,11 @@ int closeConnectionPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     return ESUCCESS;
 }
 
+NET_NON_NULL(1)
 int closePosix(Socket ** sock) {
-    if (!sock || !(*sock) || !((*sock)->data)) return ENULL_POINTER;
+    if (!NET_LIKELY(sock) || !NET_LIKELY(*sock) || !NET_LIKELY((*sock)->data)) return ENULL_POINTER;
 
-    if ((*sock)->data->fd != -1) close((*sock)->data->fd);
+    if (NET_LIKELY((*sock)->data->fd != -1)) close((*sock)->data->fd);
 
     free((*sock)->data);
     return ESUCCESS;
