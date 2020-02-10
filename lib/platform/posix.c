@@ -95,7 +95,7 @@ int prepareSocket(NET_NO_ESCAPE int (* function)(int, struct addrinfo *), NET_NO
         
         if (function(sfd, rp) != -1) break;
         
-        close(sfd);
+        close(sfd); // TODO(Fishy): Add error values
     }
 
     if (rp == NULL) {
@@ -117,7 +117,7 @@ int connectFunction(int sfd, NET_NO_ESCAPE struct addrinfo * info) {
 
 NET_NON_NULL(1)
 int connectPosix(Socket * sock) {
-    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (!NET_LIKELY(sock) || !NET_LIKELY(sock->data)) return ENULL_POINTER;
     if (NET_UNLIKELY(sock->side != CLIENT)) return EINCORRECT_SIDE;
     if (NET_UNLIKELY(sock->data->fd != -1)) return EIN_USE;
 
@@ -135,7 +135,7 @@ int startFunction(int sfd, NET_NO_ESCAPE struct addrinfo * info) {
 
 NET_NON_NULL(1)
 int startPosix(Socket * sock) {
-    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (!NET_LIKELY(sock) || !NET_LIKELY(sock->data)) return ENULL_POINTER;
     if (NET_UNLIKELY(sock->side == CLIENT)) return EINCORRECT_SIDE;
     if (NET_UNLIKELY(sock->data->fd != -1)) return EIN_USE;
 
@@ -144,7 +144,7 @@ int startPosix(Socket * sock) {
 
 NET_NON_NULL(1)
 int loopPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
-    if (!NET_LIKELY(sock) || !(sock->data)) return ECLOSED;
+    if (!NET_LIKELY(sock) || !NET_LIKELY(sock->data)) return ECLOSED;
     if (NET_UNLIKELY(sock->side == CLIENT)) return EINCORRECT_SIDE;
     if (NET_UNLIKELY(sock->data->conn != -1) || NET_UNLIKELY(sock->data->fd == -1)) return EINVALID_STATE;
 
@@ -158,23 +158,23 @@ int loopPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
 
 NET_NON_NULL(1, 2)
 int receivePosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, void * buf, size_t count, ssize_t * size) {
-    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (!NET_LIKELY(sock) || !NET_LIKELY(sock->data)) return ENULL_POINTER;
     if (NET_UNLIKELY(sock->side == SERVER && sock->data->conn == -1) || NET_UNLIKELY(sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
-    if (NET_UNLIKELY((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0)) return EUNKNOWN;
+    if (NET_UNLIKELY((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0)) return EUNKNOWN; // TODO(Fishy): Add error values
 
     return ESUCCESS;
 }
 
 NET_NON_NULL(1, 2)
 int sendPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, const void * buf, size_t count) {
-    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (!NET_LIKELY(sock) || !NET_LIKELY(sock->data)) return ENULL_POINTER;
     if (NET_UNLIKELY(sock->side == SERVER && sock->data->conn == -1) || NET_UNLIKELY(sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
     int fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
     while (count > 0) {
         int i = send(fd, buf, count, 0);
-        if (NET_UNLIKELY(i < 1)) return EUNKNOWN;
+        if (NET_UNLIKELY(i < 1)) return EUNKNOWN; // TODO(Fishy): Add error values
         buf += i;
         count -= i;
     }
@@ -184,11 +184,11 @@ int sendPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, const void * buf, size_t
 
 NET_NON_NULL(1)
 int closeConnectionPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
-    if (!NET_LIKELY(sock) || !(sock->data)) return ENULL_POINTER;
+    if (!NET_LIKELY(sock) || !NET_LIKELY(sock->data)) return ENULL_POINTER;
     if (NET_UNLIKELY(sock->side == CLIENT)) return EINCORRECT_SIDE;
     if (NET_UNLIKELY(sock->data->conn == -1)) return EINVALID_STATE;
 
-    close(sock->data->conn);
+    close(sock->data->conn); // TODO(Fishy): Add error values
     sock->data->conn = -1;
 
     return ESUCCESS;
@@ -198,7 +198,7 @@ NET_NON_NULL(1)
 int closePosix(Socket ** sock) {
     if (!NET_LIKELY(sock) || !NET_LIKELY(*sock) || !NET_LIKELY((*sock)->data)) return ENULL_POINTER;
 
-    if (NET_LIKELY((*sock)->data->fd != -1)) close((*sock)->data->fd);
+    if (NET_LIKELY((*sock)->data->fd != -1)) close((*sock)->data->fd); // TODO(Fishy): Add error values
 
     free((*sock)->data);
     return ESUCCESS;
