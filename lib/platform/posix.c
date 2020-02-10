@@ -95,7 +95,7 @@ int prepareSocket(NET_NO_ESCAPE int (* function)(int, struct addrinfo *), NET_NO
         
         if (function(sfd, rp) != -1) break;
         
-        close(sfd); // TODO(Fishy): Add error values
+        if (NET_UNLIKELY(close(sfd) == -1)) return EUNKNOWN;
     }
 
     if (rp == NULL) {
@@ -149,7 +149,19 @@ int loopPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     if (NET_UNLIKELY(sock->data->conn != -1) || NET_UNLIKELY(sock->data->fd == -1)) return EINVALID_STATE;
 
     int fd;
-    if (NET_UNLIKELY((fd = accept(sock->data->fd, NULL, 0)) < 0)) return EUNKNOWN; // TODO(Fishy): Add error values
+    if (NET_UNLIKELY((fd = accept(sock->data->fd, NULL, 0)) < 0)) {
+        switch (errno) {
+            case ECONNABORTED:
+            case EINTR:
+            case EINVAL:
+            case EMFILE:
+            case ENFILE:
+            case ENOMEM:
+            case ENOBUFS:
+            case EBADF: return EINVALID_STATE;
+            default: return EUNKNOWN;
+        }
+    }
 
     sock->data->conn = fd;
 
@@ -161,7 +173,17 @@ int receivePosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, void * buf, size_t co
     if (!NET_LIKELY(sock) || !NET_LIKELY(sock->data)) return ENULL_POINTER;
     if (NET_UNLIKELY(sock->side == SERVER && sock->data->conn == -1) || NET_UNLIKELY(sock->side == CLIENT && sock->data->fd == -1)) return EINVALID_STATE;
 
-    if (NET_UNLIKELY((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0)) return EUNKNOWN; // TODO(Fishy): Add error values
+    if (NET_UNLIKELY((*size = recv(sock->side == SERVER ? sock->data->conn : sock->data->fd, buf, count, 0)) < 0)) {
+        switch (errno) {
+            case EFAULT:
+            case EINVAL:
+            case ENOMEM:
+            case ENOTCONN:
+            case ENOTSOCK:
+            case EBADF: return EINVALID_STATE;
+            default: return EUNKNOWN;
+        }
+    }
 
     return ESUCCESS;
 }
@@ -174,7 +196,23 @@ int sendPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock, const void * buf, size_t
     int fd = sock->side == SERVER ? sock->data->conn : sock->data->fd;
     while (count > 0) {
         int i = send(fd, buf, count, 0);
-        if (NET_UNLIKELY(i < 1)) return EUNKNOWN; // TODO(Fishy): Add error values
+        if (NET_UNLIKELY(i == -1)) {
+            switch (errno) {
+                case EDESTADDRREQ:
+                case EFAULT:
+                case EINTR:
+                case EISCONN:
+                case EMSGSIZE:
+                case ENOBUFS:
+                case ENOMEM:
+                case ENOTCONN:
+                case ENOTSOCK:
+                case EPIPE:
+                case EBADF: return EINVALID_STATE;
+                default: return EUNKNOWN;
+            }
+        }
+
         buf += i;
         count -= i;
     }
@@ -188,7 +226,7 @@ int closeConnectionPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     if (NET_UNLIKELY(sock->side == CLIENT)) return EINCORRECT_SIDE;
     if (NET_UNLIKELY(sock->data->conn == -1)) return EINVALID_STATE;
 
-    close(sock->data->conn); // TODO(Fishy): Add error values
+    if (NET_UNLIKELY(close(sock->data->conn) == -1)) return EUNKNOWN;
     sock->data->conn = -1;
 
     return ESUCCESS;
@@ -198,7 +236,9 @@ NET_NON_NULL(1)
 int closePosix(Socket ** sock) {
     if (!NET_LIKELY(sock) || !NET_LIKELY(*sock) || !NET_LIKELY((*sock)->data)) return ENULL_POINTER;
 
-    if (NET_LIKELY((*sock)->data->fd != -1)) close((*sock)->data->fd); // TODO(Fishy): Add error values
+    if (NET_LIKELY((*sock)->data->fd != -1)) {
+        if (NET_UNLIKELY(close((*sock)->data->fd) == -1)) return EUNKNOWN;
+    }
 
     free((*sock)->data);
     return ESUCCESS;
