@@ -1,9 +1,3 @@
-#include <net/net.h>
-#include <net/error.h>
-
-#include <stdlib.h>
-#include <assert.h>
-
 #include "tests.h"
 
 int main() {

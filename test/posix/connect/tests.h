@@ -2,8 +2,10 @@
 #define NET_POSIX_CONNECT_H
 
 #include <net/net.h>
+#include <net/error.h>
 
 #include <stdlib.h>
+#include <assert.h>
 
 extern NetHandler * gHandler;
 
