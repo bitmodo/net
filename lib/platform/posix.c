@@ -95,7 +95,10 @@ int prepareSocket(NET_NO_ESCAPE int (* function)(int, struct addrinfo *), NET_NO
         
         if (function(sfd, rp) != -1) break;
         
-        if (NET_UNLIKELY(close(sfd) == -1)) return EUNKNOWN;
+        if (NET_UNLIKELY(close(sfd) == -1)) {
+            freeaddrinfo(info);
+            return EUNKNOWN;
+        }
     }
 
     if (rp == NULL) {
