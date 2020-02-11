@@ -1,5 +1,5 @@
-#ifndef NET_POSIX_START_H
-#define NET_POSIX_START_H
+#ifndef NET_POSIX_LOOP_H
+#define NET_POSIX_LOOP_H
 
 #include <net/net.h>
 #include <net/error.h>
@@ -9,7 +9,7 @@
 
 extern NetHandler * gHandler;
 
-extern int startPosix(Socket *);
+extern int loopPosix(Socket *);
 
 struct SocketData {
     int fd;
@@ -18,7 +18,7 @@ struct SocketData {
 
 void setup() {
     gHandler = malloc(sizeof(NetHandler));
-    gHandler->start = &startPosix;
+    gHandler->loop = &loopPosix;
 }
 
 void cleanup() {

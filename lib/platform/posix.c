@@ -154,14 +154,14 @@ int loopPosix(NET_NO_ESCAPE Socket * NET_RESTRICT sock) {
     int fd;
     if (NET_UNLIKELY((fd = accept(sock->data->fd, NULL, 0)) < 0)) {
         switch (errno) {
+            case EBADF:
             case ECONNABORTED:
             case EINTR:
             case EINVAL:
             case EMFILE:
             case ENFILE:
-            case ENOMEM:
             case ENOBUFS:
-            case EBADF: return EINVALID_STATE;
+            case ENOMEM: return EINVALID_STATE;
             default: return EUNKNOWN;
         }
     }

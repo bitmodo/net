@@ -1,0 +1,14 @@
+test_files += {'name': 'posix-loop-error-again', 'src': files('again.c')}
+test_files += {'name': 'posix-loop-error-badf', 'src': files('badf.c')}
+test_files += {'name': 'posix-loop-error-conn-aborted', 'src': files('conn_aborted.c')}
+test_files += {'name': 'posix-loop-error-fault', 'src': files('fault.c')}
+test_files += {'name': 'posix-loop-error-intr', 'src': files('intr.c')}
+test_files += {'name': 'posix-loop-error-inval', 'src': files('inval.c')}
+test_files += {'name': 'posix-loop-error-mfile', 'src': files('mfile.c')}
+test_files += {'name': 'posix-loop-error-nfile', 'src': files('nfile.c')}
+test_files += {'name': 'posix-loop-error-nobufs', 'src': files('nobufs.c')}
+test_files += {'name': 'posix-loop-error-nomem', 'src': files('nomem.c')}
+test_files += {'name': 'posix-loop-error-not-sock', 'src': files('not_sock.c')}
+test_files += {'name': 'posix-loop-error-op-not-supp', 'src': files('op_not_supp.c')}
+test_files += {'name': 'posix-loop-error-proto', 'src': files('proto.c')}
+test_files += {'name': 'posix-loop-error-would-block', 'src': files('would_block.c')}

@@ -13,3 +13,4 @@ endif
 subdir('connect')
 subdir('start')
 subdir('setupSocket')
+subdir('loop')
